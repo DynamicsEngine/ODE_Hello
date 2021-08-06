@@ -67,6 +67,7 @@ struct sphere {
 
 struct sphere apple, ball;
 
+void DestroyObject(dGeomID geom);
 void DestroyObjects();
 void CreateObjects(dWorldID w);
 void DrawTrimeshObject(dGeomID geom, trimeshvi *tmv, dReal R, dReal G, dReal B,
@@ -74,7 +75,6 @@ void DrawTrimeshObject(dGeomID geom, trimeshvi *tmv, dReal R, dReal G, dReal B,
 void DrawConvexObject(dGeomID geom, convexfvp *fvp, dReal R, dReal G, dReal B);
 void DrawObjects();
 
-void DestroyObject(struct sphere *s);
 void CreateSphere(struct sphere *s,
   dWorldID world, dReal r, dReal m, dReal bounce, dReal R, dReal G, dReal B);
 void DrawSphere(struct sphere *s);
@@ -89,25 +89,24 @@ void simLoop(int pause);
 void drawStuffStart();
 void setDrawStuff(dsFunctions *fn);
 
+void DestroyObject(dGeomID geom)
+{
+  dBodyDestroy(dGeomGetBody(geom));
+  dGeomDestroy(geom);
+}
+
 void DestroyObjects()
 {
-  DestroyObject(&apple);
-  DestroyObject(&ball);
+  DestroyObject(apple.geom);
+  DestroyObject(ball.geom);
 
-  dBodyDestroy(dGeomGetBody(geomTmTetra));
-  dGeomDestroy(geomTmTetra);
-  dBodyDestroy(dGeomGetBody(geomTetra));
-  dGeomDestroy(geomTetra);
-  dBodyDestroy(dGeomGetBody(geomCube));
-  dGeomDestroy(geomCube);
-  dBodyDestroy(dGeomGetBody(geomIcosahedron));
-  dGeomDestroy(geomIcosahedron);
-  dBodyDestroy(dGeomGetBody(geomTmBunny));
-  dGeomDestroy(geomTmBunny);
-  dBodyDestroy(dGeomGetBody(geomBunny));
-  dGeomDestroy(geomBunny);
-  dBodyDestroy(dGeomGetBody(geomCustom));
-  dGeomDestroy(geomCustom);
+  DestroyObject(geomTmTetra);
+  DestroyObject(geomTetra);
+  DestroyObject(geomCube);
+  DestroyObject(geomIcosahedron);
+  DestroyObject(geomTmBunny);
+  DestroyObject(geomBunny);
+  DestroyObject(geomCustom);
 }
 
 void CreateObjects(dWorldID world)
@@ -228,12 +227,6 @@ void DrawObjects()
   DrawTrimeshObject(geomTmBunny, &tmvBunny, 0.2, 0.8, 0.6, wire_solid);
   DrawConvexObject(geomBunny, &fvpBunny, 0.8, 0.4, 0.8);
   DrawConvexObject(geomCustom, &fvpCustom, 0.2, 0.6, 0.8);
-}
-
-void DestroyObject(struct sphere *s)
-{
-  dBodyDestroy(s->body);
-  dGeomDestroy(s->geom);
 }
 
 void CreateSphere(struct sphere *s,
