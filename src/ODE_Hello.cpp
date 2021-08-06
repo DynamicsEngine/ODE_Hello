@@ -37,10 +37,10 @@ dJointGroupID contactgroup;
 extern trimeshvi tmvTetra;
 extern convexfvp fvpTetra;
 
-extern trimeshvi tmvCube; // not implemented (now tetra)
+extern trimeshvi tmvCube;
 extern convexfvp fvpCube;
 
-extern trimeshvi tmvIcosahedron; // not implemented (now tetra)
+extern trimeshvi tmvIcosahedron;
 extern convexfvp fvpIcosahedron;
 
 extern trimeshvi tmvBunny;
@@ -51,7 +51,9 @@ extern convexfvp fvpCustom; // not implemented (now tetra)
 
 dGeomID geomTmTetra;
 dGeomID geomTetra;
+dGeomID geomTmCube;
 dGeomID geomCube;
+dGeomID geomTmIcosahedron;
 dGeomID geomIcosahedron;
 dGeomID geomTmBunny;
 dGeomID geomBunny;
@@ -69,7 +71,7 @@ struct sphere apple, ball;
 
 void DestroyObject(dGeomID geom);
 void DestroyObjects();
-void CreateObjects(dWorldID w);
+void CreateObjects(dWorldID world);
 void DrawObjects();
 
 void CreateSphere(struct sphere *s,
@@ -99,7 +101,9 @@ void DestroyObjects()
 
   DestroyObject(geomTmTetra);
   DestroyObject(geomTetra);
+  DestroyObject(geomTmCube);
   DestroyObject(geomCube);
+  DestroyObject(geomTmIcosahedron);
   DestroyObject(geomIcosahedron);
   DestroyObject(geomTmBunny);
   DestroyObject(geomBunny);
@@ -125,11 +129,21 @@ cout << "Tetra" << endl;
   dBodyID b = dGeomGetBody(geomTetra);
   dBodySetPosition(b, 0.0, 1.5, 0.5);
   dBodyEnable(b);
+cout << "TmCube" << endl;
+  geomTmCube = CreateTrimeshFromVI(world, space, DENSITY, &tmvCube);
+  dBodyID e = dGeomGetBody(geomTmCube);
+  dBodySetPosition(e, -1.5, -3.0, 0.5);
+  dBodyEnable(e);
 cout << "Cube" << endl;
   geomCube = CreateConvexFromFVP(world, space, DENSITY, &fvpCube);
   dBodyID c = dGeomGetBody(geomCube);
   dBodySetPosition(c, -1.5, -1.5, 0.5);
   dBodyEnable(c);
+cout << "TmIcosahedron" << endl;
+  geomTmIcosahedron = CreateTrimeshFromVI(world, space, DENSITY, &tmvIcosahedron);
+  dBodyID h = dGeomGetBody(geomTmIcosahedron);
+  dBodySetPosition(h, -1.5, 3.0, 0.5);
+  dBodyEnable(h);
 cout << "Icosahedron" << endl;
   geomIcosahedron = CreateConvexFromFVP(world, space, DENSITY, &fvpIcosahedron);
   dBodyID i = dGeomGetBody(geomIcosahedron);
@@ -180,9 +194,11 @@ void DrawObjects()
 
   DrawTrimeshObject(geomTmTetra, &tmvTetra, 0.8, 0.6, 0.2, wire_solid);
   DrawConvexObject(geomTetra, &fvpTetra, 0.4, 0.8, 0.4);
+  DrawTrimeshObject(geomTmCube, &tmvCube, 0.6, 0.8, 0.2, wire_solid);
   DrawConvexObject(geomCube, &fvpCube, 0.8, 0.8, 0.4);
+  DrawTrimeshObject(geomTmIcosahedron, &tmvIcosahedron, 0.2, 0.8, 0.6, wire_solid);
   DrawConvexObject(geomIcosahedron, &fvpIcosahedron, 0.4, 0.8, 0.8);
-  DrawTrimeshObject(geomTmBunny, &tmvBunny, 0.2, 0.8, 0.6, wire_solid);
+  DrawTrimeshObject(geomTmBunny, &tmvBunny, 0.8, 0.2, 0.6, wire_solid);
   DrawConvexObject(geomBunny, &fvpBunny, 0.8, 0.4, 0.8);
   DrawConvexObject(geomCustom, &fvpCustom, 0.2, 0.6, 0.8);
 }
