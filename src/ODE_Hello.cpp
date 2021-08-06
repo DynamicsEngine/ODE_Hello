@@ -195,6 +195,8 @@ cout << "Custom" << endl;
 
 void DrawObjects()
 {
+  dsSetTexture(DS_WOOD); // DS_SKY DS_GROUND DS_CHECKERED
+
   DrawSphere(&apple);
   DrawSphere(&ball);
 
