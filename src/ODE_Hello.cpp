@@ -28,7 +28,6 @@ using namespace std;
 float move_delta = 0.1; // delta for x, y, z move
 int wire_solid = 1; // 0: wireframe, 1: solid (for bunny)
 int polyfill_wireframe = 0; // 0: solid, 1: wireframe (for all)
-dsFunctions fn; // must be global
 dWorldID world; // for body
 dSpaceID space; // for geom collision
 dGeomID ground;
@@ -361,6 +360,7 @@ void setDrawStuff(dsFunctions *fn)
   fn->start = drawStuffStart;
   fn->step = simLoop;
   fn->command = command;
+  fn->stop = NULL;
   fn->path_to_textures = TEX_RES; // utf-8
 }
 
@@ -376,6 +376,7 @@ int main(int ac, char **av)
   setParameters();
   CreateObjects(world);
 
+  dsFunctions fn;
   setDrawStuff(&fn);
   dsSimulationLoop(ac, av, WIDTH, HEIGHT, &fn);
 
