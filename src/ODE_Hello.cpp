@@ -254,19 +254,21 @@ void nearCallback(void *data, dGeomID o1, dGeomID o2)
       dContact *p = &contact[i];
       p->surface.mode = dContactBounce | dContactSoftERP | dContactSoftCFM;
       p->surface.bounce = bounce;
+      p->surface.bounce_vel = 0.0; // minimum velocity for bounce
+      p->surface.mu = 0.5; // or dInfinity
       p->surface.soft_erp = 0.2;
       p->surface.soft_cfm = 0.001;
-      p->surface.mu = 0.5; // or float('inf') for max;
-      p->surface.bounce_vel = 0.0; // minimum velocity for bounce
       dJointID c = dJointCreateContact(world, contactgroup, p);
       dJointAttach(c, dGeomGetBody(p->geom.g1), dGeomGetBody(p->geom.g2));
     }
   }else{
+    dReal bounce = getgBounce(o1) * getgBounce(o2);
     for(int i = 0; i < n; i++){
       dContact *p = &contact[i];
       p->surface.mode = dContactBounce;
-      p->surface.bounce = 1.0;
+      p->surface.bounce = bounce;
       p->surface.bounce_vel = 0.01; // minimum velocity for bounce
+      p->surface.mu = 0.5; // or dInfinity
       dJointID c = dJointCreateContact(world, contactgroup, p);
       dJointAttach(c, dGeomGetBody(p->geom.g1), dGeomGetBody(p->geom.g2));
     }
