@@ -70,9 +70,6 @@ struct sphere apple, ball;
 void DestroyObject(dGeomID geom);
 void DestroyObjects();
 void CreateObjects(dWorldID w);
-void DrawTrimeshObject(dGeomID geom, trimeshvi *tmv, dReal R, dReal G, dReal B,
-  int ws);
-void DrawConvexObject(dGeomID geom, convexfvp *fvp, dReal R, dReal G, dReal B);
 void DrawObjects();
 
 void CreateSphere(struct sphere *s,
@@ -176,45 +173,6 @@ cout << "Custom" << endl;
   dBodyEnable(o);
 }
 
-void DrawTrimeshObject(dGeomID geom, trimeshvi *tmv, dReal R, dReal G, dReal B,
-  int ws)
-{
-  dBodyID b = dGeomGetBody(geom);
-  dsSetColor(R, G, B);
-  const dReal *pos = dBodyGetPosition(b);
-  const dReal *rot = dBodyGetRotation(b);
-#if 0
-  dsDrawConvexD(pos, rot,
-    fvp->faces, fvp->faceCount, fvp->vtx, fvp->vtxCount, fvp->polygons);
-#else
-  float *vtx = tmv->vtx;
-  dTriIndex *idx = tmv->indices;
-  for(int i = 0; i < tmv->indexCount; i += 3){
-    dReal v[] = { // explicit conversion from float to dReal
-      vtx[idx[i + 0] * 3 + 0],
-      vtx[idx[i + 0] * 3 + 1],
-      vtx[idx[i + 0] * 3 + 2],
-      vtx[idx[i + 1] * 3 + 0],
-      vtx[idx[i + 1] * 3 + 1],
-      vtx[idx[i + 1] * 3 + 2],
-      vtx[idx[i + 2] * 3 + 0],
-      vtx[idx[i + 2] * 3 + 1],
-      vtx[idx[i + 2] * 3 + 2]};
-    dsDrawTriangleD(pos, rot, &v[0], &v[3], &v[6], ws);
-  }
-#endif
-}
-
-void DrawConvexObject(dGeomID geom, convexfvp *fvp, dReal R, dReal G, dReal B)
-{
-  dBodyID b = dGeomGetBody(geom);
-  dsSetColor(R, G, B);
-  const dReal *pos = dBodyGetPosition(b);
-  const dReal *rot = dBodyGetRotation(b);
-  dsDrawConvexD(pos, rot,
-    fvp->faces, fvp->faceCount, fvp->vtx, fvp->vtxCount, fvp->polygons);
-}
-
 void DrawObjects()
 {
   DrawSphere(&apple);
@@ -311,10 +269,16 @@ void command(int cmd)
   case 'o': {
     dBodyID b = dGeomGetBody(apple.geom);
     const dReal *p = dBodyGetPosition(b);
-    printf("(%f, %f, %f)\n", p[0], p[1], p[2]);
+    printf("sphere red (%f, %f, %f)\n", p[0], p[1], p[2]);
   } break;
   case 'p': dsSetDrawMode(polyfill_wireframe = 1 - polyfill_wireframe); break;
   case 'w': wire_solid = 1 - wire_solid; break;
+  case 'v': {
+    float p[3], hpr[3];
+    dsGetViewpoint(p, hpr);
+    printf("view point xyz(%f, %f, %f)\n", p[0], p[1], p[2]);
+    printf("view point hpr(%f, %f, %f)\n", hpr[0], hpr[1], hpr[2]);
+  } break;
   case 'r':
     DestroyObjects();
     dJointGroupDestroy(contactgroup);
@@ -341,6 +305,7 @@ void setParameters()
   printf("o: show sphere red location(x, y, z)\n");
   printf("p: dsSetDrawMode(polyfill_wireframe) for all\n");
   printf("w: dsDrawTriangle(..., wire_solid) for bunny\n");
+  printf("v: show view point(x, y, z)\n");
   printf("r: reset all objects\n");
 }
 
@@ -359,8 +324,8 @@ void simLoop(int pause)
 
 void drawStuffStart()
 {
-  static float xyz[3] = {3.0, 0.0, 1.0}; // camera position
-  static float hpr[3] = {-180, 0, 0}; // look at
+  static float xyz[3] = {5.36, 2.02, 4.28}; // camera position {3.0, 0.0, 1.0}
+  static float hpr[3] = {-162.0, -31.0, 0.0}; // look at {-180.0, 0.0, 0.0}
   dsSetViewpoint(xyz, hpr); // set camera
   dsSetSphereQuality(3); // default sphere 1
   dsSetCapsuleQuality(3); // default capsule 3
