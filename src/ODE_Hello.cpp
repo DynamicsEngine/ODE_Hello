@@ -46,8 +46,8 @@ extern convexfvp fvpIcosahedron;
 extern trimeshvi tmvBunny;
 extern convexfvp fvpBunny; // body drawing by fvpBunny causes rocky
 
-extern trimeshvi tmvCustom; // not implemented (now tetra)
-extern convexfvp fvpCustom; // not implemented (now tetra)
+extern trimeshvi tmvCustom; // now tetra
+extern convexfvp fvpCustom; // now tetra
 
 dGeomID geomTmTetra;
 dGeomID geomTetra;
@@ -57,6 +57,7 @@ dGeomID geomTmIcosahedron;
 dGeomID geomIcosahedron;
 dGeomID geomTmBunny;
 dGeomID geomBunny;
+dGeomID geomTmCustom;
 dGeomID geomCustom;
 
 struct sphere {
@@ -107,6 +108,7 @@ void DestroyObjects()
   DestroyObject(geomIcosahedron);
   DestroyObject(geomTmBunny);
   DestroyObject(geomBunny);
+  DestroyObject(geomTmCustom);
   DestroyObject(geomCustom);
 }
 
@@ -180,6 +182,11 @@ cout << "Bunny" << endl;
   dBodyID r = dGeomGetBody(geomBunny);
   dBodySetPosition(r, -3.0, -1.5, 2.0);
   dBodyEnable(r);
+cout << "TmCustom" << endl;
+  geomTmCustom = CreateTrimeshFromVI(world, space, DENSITY, &tmvCustom);
+  dBodyID d = dGeomGetBody(geomTmCustom);
+  dBodySetPosition(d, -3.0, 3.0, 0.5);
+  dBodyEnable(d);
 cout << "Custom" << endl;
   geomCustom = CreateConvexFromFVP(world, space, DENSITY, &fvpCustom);
   dBodyID o = dGeomGetBody(geomCustom);
@@ -200,6 +207,7 @@ void DrawObjects()
   DrawConvexObject(geomIcosahedron, &fvpIcosahedron, 0.4, 0.8, 0.8);
   DrawTrimeshObject(geomTmBunny, &tmvBunny, 0.8, 0.2, 0.6, wire_solid);
   DrawConvexObject(geomBunny, &fvpBunny, 0.8, 0.4, 0.8);
+  DrawTrimeshObject(geomTmCustom, &tmvCustom, 0.6, 0.2, 0.8, wire_solid);
   DrawConvexObject(geomCustom, &fvpCustom, 0.2, 0.6, 0.8);
 }
 
