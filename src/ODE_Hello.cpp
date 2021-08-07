@@ -59,6 +59,11 @@ dGeomID geomBunny;
 dGeomID geomTmCustom;
 dGeomID geomCustom;
 
+dReal slopeSz[] = {8.0, 0.1, 2.0};
+dReal slopeLR[] = {2.0, 1.0};
+dReal slopeO[][3] = {{0.0, 0.0, 0.0}, {0.0, 0.0, 0.0}}; // offset
+dGeomID geomSlope[A_SIZE(slopeO)][2]; // composite [n][] = {geomTrans, geomSub}
+
 struct sphere {
   dBodyID body;
   dGeomID geom;
@@ -67,7 +72,7 @@ struct sphere {
   dReal gBounce;
 };
 
-struct sphere apple, ball;
+struct sphere apple, ball, roll;
 
 void DestroyObject(dGeomID geom);
 void DestroyObjects();
@@ -98,6 +103,10 @@ void DestroyObjects()
 {
   DestroyObject(apple.geom);
   DestroyObject(ball.geom);
+  DestroyObject(roll.geom);
+
+  dBodyDestroy(dGeomGetBody(geomSlope[0][0]));
+  for(int j = 0; j < A_SIZE(slopeO); ++j) dGeomDestroy(geomSlope[j][0]);
 
   DestroyObject(geomTmTetra);
   DestroyObject(geomTetra);
@@ -116,10 +125,67 @@ void CreateObjects(dWorldID world)
 cout << "Sphere red" << endl;
   CreateSphere(&apple, world, 0.2, 1.0, 1.0, 0.8, 0.4, 0.4);
   dBodySetPosition(apple.body, -0.15, 0.31, 2.5); // x, y on the bunny
+  dBodyDisable(apple.body);
 cout << "Sphere blue" << endl;
   CreateSphere(&ball, world, 0.1, 1.0, 0.5, 0.4, 0.4, 0.8);
   dBodySetPosition(ball.body, 0.5, 0.0, ball.r);
-  dBodyDisable(apple.body);
+cout << "Sphere green" << endl;
+  CreateSphere(&roll, world, 0.2, 1.0, 0.8, 0.4, 0.8, 0.4);
+  dBodySetPosition(roll.body, -10.5, 0.0, 1.5); // on the slope
+
+cout << "Slope" << endl;
+  dBodyID s = dBodyCreate(world);
+  dMass mass, subm;
+  dMassSetZero(&mass);
+  for(int j = 0; j < A_SIZE(slopeO); ++j){
+    dMassSetZero(&subm);
+    dReal *o = slopeO[j];
+    dGeomID *g = geomSlope[j];
+    g[0] = dCreateGeomTransform(space);
+    dGeomTransformSetCleanup(g[0], 1);
+    switch(j){
+    case 0:
+      g[1] = dCreateBox(0, slopeSz[0], slopeSz[1], slopeSz[2]);
+      dMassSetBox(&subm, DENSITY, slopeSz[0], slopeSz[1], slopeSz[2]);
+      //dMassSetBoxTotal(&subm, subweight, slopeSz[0], slopeSz[1], slopeSz[2]);
+      break;
+    case 1:
+      g[1] = dCreateCylinder(0, slopeLR[1], slopeLR[0]);
+      dMassSetCylinder(&subm, DENSITY, 3, slopeLR[1], slopeLR[0]); // 123: xyz
+      break;
+    }
+    dGeomTransformSetGeom(g[0], g[1]);
+    dGeomSetPosition(g[1], o[0], o[1], o[2]);
+    dMassTranslate(&subm, o[0], o[1], o[2]);
+    dQuaternion q;
+    dQSetIdentity(q); // dQFromAxisAndAngle(q, , , , M_PI / 2);
+    dGeomSetQuaternion(g[1], q);
+    dMatrix3 rot;
+    dRfromQ(rot, q);
+    dMassRotate(&subm, rot);
+    dMassAdd(&mass, &subm);
+  }
+  for(int j = 0; j < A_SIZE(slopeO); ++j){
+    dReal *o = slopeO[j];
+    dGeomID *g = geomSlope[j];
+    dGeomSetPosition(g[1], o[0]-mass.c[0], o[1]-mass.c[1], o[2]-mass.c[2]);
+  }
+  dMassTranslate(&mass, -mass.c[0], -mass.c[1], -mass.c[2]);
+  for(int j = 0; j < A_SIZE(slopeO); ++j){
+    dGeomID *g = geomSlope[j];
+    dGeomSetBody(g[0], s);
+  }
+  dBodySetMass(s, &mass);
+  dBodySetPosition(s, -12.0, 0.0, 1.5);
+  if(1){
+    dQuaternion o, p, q;
+    dQFromAxisAndAngle(q, 1, 0, 0, M_PI / 2);
+    dQFromAxisAndAngle(p, 0, 1, 0, M_PI / 9);
+    dQMultiply0(o, p, q);
+    dBodySetQuaternion(s, o);
+  }
+  dBodyDisable(s); // dBodyEnable(s);
+
 cout << "TmTetra" << endl;
   geomTmTetra = CreateTrimeshFromVI(world, space, DENSITY, &tmvTetra);
   dBodyID t = dGeomGetBody(geomTmTetra);
@@ -209,6 +275,14 @@ void DrawObjects()
 
   DrawSphere(&apple);
   DrawSphere(&ball);
+  DrawSphere(&roll);
+
+  dBodyID s = dGeomGetBody(geomSlope[0][0]);
+  dsSetColor(1.0, 1.0, 1.0);
+  const dReal *pos = dBodyGetPosition(s);
+  const dReal *rot = dBodyGetRotation(s);
+  dsDrawBoxD(pos, rot, slopeSz);
+  dsDrawCylinderD(pos, rot, slopeLR[0], slopeLR[1]);
 
   DrawTrimeshObject(geomTmTetra, &tmvTetra, 0.8, 0.6, 0.2, wire_solid);
   DrawConvexObject(geomTetra, &fvpTetra, 0.4, 0.8, 0.4);
@@ -306,6 +380,9 @@ void command(int cmd)
   case 't': {
     dBodySetTorque(dGeomGetBody(apple.geom), 0.0, 0.0, 0.5);
     dBodySetTorque(dGeomGetBody(ball.geom), 0.0, 0.0, 0.5);
+
+    dBodySetTorque(dGeomGetBody(roll.geom), -0.5, 0.0, 0.0);
+
     dBodySetTorque(dGeomGetBody(geomTmTetra), 0.0, 0.0, 0.5);
     dBodySetTorque(dGeomGetBody(geomTetra), 0.0, 0.0, 0.5);
     dBodySetTorque(dGeomGetBody(geomTmCube), 0.0, 0.0, 0.5);
