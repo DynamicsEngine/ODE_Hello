@@ -7,7 +7,7 @@
 
 #include <trimeshconvex.h>
 
-static float Vtx[] = { // 453 * 3;
+static dReal TmVtx[] = { // 453 * 3;
   -0.334392f, 0.133007f, 0.062259f,
   -0.350189f, 0.150354f, -0.147769f,
   -0.234201f, 0.343811f, -0.174307f,
@@ -1542,7 +1542,7 @@ static dReal Planes[] = { // 176 * 4
   0.595945, 0.289897, 0.748872, 0.839373,
   0.631626, 0.236397, 0.738353, 0.8214,
   0.712378, 0.227061, 0.664049, 0.771772};
-static dReal Points[] = { // 105 * 3;
+static dReal Vtx[] = { // 105 * 3;
   -0.459488, -0.093017, -0.311341,
   0.466635, -0.094416, -0.305669,
   -0.309239, 0.776868, 0.304726,
@@ -1826,6 +1826,6 @@ static unsigned int Polygons[] = { // 176 * (1 + 3)
   3, 19, 36, 104,
   3, 104, 93, 19};
 
-trimeshvi tmvBunny = {A_SIZE(Vtx) / 3, Vtx, Indices, A_SIZE(Indices)};
+trimeshvi tmvBunny = {A_SIZE(TmVtx) / 3, TmVtx, Indices, A_SIZE(Indices)};
 convexfvp fvpBunny = {
-  A_SIZE(Planes) / 4, Planes, A_SIZE(Points) / 3, Points, Polygons};
+  A_SIZE(Planes) / 4, Planes, A_SIZE(Vtx) / 3, Vtx, Polygons};

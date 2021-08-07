@@ -9,7 +9,7 @@
 
 struct trimeshvi {
   unsigned int vtxCount;
-  float *vtx;
+  dReal *vtx;
   dTriIndex *indices;
   unsigned int indexCount; // count of all dTriIndex elements
 };

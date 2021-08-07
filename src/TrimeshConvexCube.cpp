@@ -7,15 +7,6 @@
 
 #include <trimeshconvex.h>
 
-static float Vtx[] = { // 8 * 3;
-  0.25f, 0.25f, 0.25f,
-  -0.25f, 0.25f, 0.25f,
-  0.25f, -0.25f, 0.25f,
-  -0.25f, -0.25f, 0.25f,
-  0.25f, 0.25f, -0.25f,
-  -0.25f, 0.25f, -0.25f,
-  0.25f, -0.25f, -0.25f,
-  -0.25f, -0.25f, -0.25f};
 static dTriIndex Indices[] = { // 12 * 3
   0, 2, 6,
   6, 4, 0,
@@ -47,7 +38,7 @@ static dReal Planes[] = { // 6 * 4
   0.0f, -1.0f, 0.0f, 1.0f,
   -1.0f, 0.0f, 0.0f, 0.0f};
 #endif
-static dReal Points[] = { // 8 * 3;
+static dReal Vtx[] = { // 8 * 3;
   0.25f, 0.25f, 0.25f,
   -0.25f, 0.25f, 0.25f,
   0.25f, -0.25f, 0.25f,
@@ -66,4 +57,4 @@ static unsigned int Polygons[] = { // 6 * (1 + 4)
 
 trimeshvi tmvCube = {A_SIZE(Vtx) / 3, Vtx, Indices, A_SIZE(Indices)};
 convexfvp fvpCube = {
-  A_SIZE(Planes) / 4, Planes, A_SIZE(Points) / 3, Points, Polygons};
+  A_SIZE(Planes) / 4, Planes, A_SIZE(Vtx) / 3, Vtx, Polygons};

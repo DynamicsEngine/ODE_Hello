@@ -238,7 +238,7 @@ dReal getgBounce(dGeomID id)
 {
   if(id == apple.geom) return apple.gBounce;
   if(id == ball.geom) return ball.gBounce;
-  return 1.0;
+  return 0.9; // 1.0;
 }
 
 void nearCallback(void *data, dGeomID o1, dGeomID o2)

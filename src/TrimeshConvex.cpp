@@ -13,8 +13,8 @@ dGeomID CreateTrimeshFromVI(dWorldID world, dSpaceID space,
   dReal density, trimeshvi *tmv)
 {
   dTriMeshDataID tmd = dGeomTriMeshDataCreate();
-  dGeomTriMeshDataBuildSingle(tmd,
-    tmv->vtx, 3 * sizeof(float), tmv->vtxCount,
+  dGeomTriMeshDataBuildDouble(tmd,
+    tmv->vtx, 3 * sizeof(dReal), tmv->vtxCount,
     tmv->indices, tmv->indexCount, 3 * sizeof(dTriIndex));
   dGeomTriMeshDataPreprocess2(tmd,
     (1U << dTRIDATAPREPROCESS_BUILD_FACE_ANGLES), NULL);
@@ -62,10 +62,10 @@ void DrawTrimeshObject(dGeomID geom, trimeshvi *tmv,
   dsSetColor(R, G, B);
   const dReal *pos = dBodyGetPosition(b);
   const dReal *rot = dBodyGetRotation(b);
-  float *vtx = tmv->vtx;
+  dReal *vtx = tmv->vtx;
   dTriIndex *idx = tmv->indices;
   for(int i = 0; i < tmv->indexCount; i += 3){
-    dReal v[] = { // explicit conversion from float to dReal
+    dReal v[] = { // explicit conversion from type of vtx to dReal (now same)
       vtx[idx[i + 0] * 3 + 0],
       vtx[idx[i + 0] * 3 + 1],
       vtx[idx[i + 0] * 3 + 2],
