@@ -25,6 +25,9 @@ using namespace std;
 #define TICK_DELTA 0.01
 #define DENSITY 5.0
 
+float xyz[][3] = {{3.0, 0.0, 1.0}, {5.36, 2.02, 4.28}}; // camera position
+float hpr[][3] = {{-180.0, 0.0, 0.0}, {-162.0, -31.0, 0.0}}; // look at
+int sw_viewpoint = 0;
 float move_delta = 0.1; // delta for x, y, z move
 int wire_solid = 1; // 0: wireframe, 1: solid (for bunny)
 int polyfill_wireframe = 0; // 0: solid, 1: wireframe (for all)
@@ -135,9 +138,10 @@ cout << "Sphere green" << endl;
 
 cout << "Slope" << endl;
   dBodyID s = dBodyCreate(world);
-  dMass mass, subm;
+  dMass mass;
   dMassSetZero(&mass);
   for(int j = 0; j < A_SIZE(slopeO); ++j){
+    dMass subm;
     dMassSetZero(&subm);
     dReal *o = slopeO[j];
     dGeomID *g = geomSlope[j];
@@ -164,7 +168,7 @@ cout << "Slope" << endl;
     dRfromQ(rot, q);
     dMassRotate(&subm, rot);
     dMassAdd(&mass, &subm);
-  }
+  } // CG != (0, 0, 0)
   for(int j = 0; j < A_SIZE(slopeO); ++j){
     dReal *o = slopeO[j];
     dGeomID *g = geomSlope[j];
@@ -175,7 +179,7 @@ cout << "Slope" << endl;
     dGeomID *g = geomSlope[j];
     dGeomSetBody(g[0], s);
   }
-  dBodySetMass(s, &mass);
+  dBodySetMass(s, &mass); // CG == (0, 0, 0)
   dBodySetPosition(s, -12.0, 0.0, 1.5);
   if(1){
     dQuaternion o, p, q;
@@ -281,8 +285,14 @@ void DrawObjects()
   dsSetColor(1.0, 1.0, 1.0);
   const dReal *pos = dBodyGetPosition(s);
   const dReal *rot = dBodyGetRotation(s);
-  dsDrawBoxD(pos, rot, slopeSz);
-  dsDrawCylinderD(pos, rot, slopeLR[0], slopeLR[1]);
+  for(int j = 0; j < A_SIZE(slopeO); ++j){
+    dReal npos[A_SIZE(slopeO[0])];
+    for(int i = 0; i < A_SIZE(slopeO[0]); ++i) npos[i] = pos[i] + slopeO[j][i];
+    switch(j){
+    case 0: dsDrawBoxD(npos, rot, slopeSz); break;
+    case 1: dsDrawCylinderD(npos, rot, slopeLR[0], slopeLR[1]); break;
+    }
+  }
 
   DrawTrimeshObject(geomTmTetra, &tmvTetra, 0.8, 0.6, 0.2, wire_solid);
   DrawConvexObject(geomTetra, &fvpTetra, 0.4, 0.8, 0.4);
@@ -402,10 +412,20 @@ void command(int cmd)
   case 'p': dsSetDrawMode(polyfill_wireframe = 1 - polyfill_wireframe); break;
   case 'w': wire_solid = 1 - wire_solid; break;
   case 'v': {
-    float p[3], hpr[3];
-    dsGetViewpoint(p, hpr);
+    float p[3], l_hpr[3];
+    dsGetViewpoint(p, l_hpr);
     printf("view point xyz(%f, %f, %f)\n", p[0], p[1], p[2]);
-    printf("view point hpr(%f, %f, %f)\n", hpr[0], hpr[1], hpr[2]);
+    printf("view point hpr(%f, %f, %f)\n", l_hpr[0], l_hpr[1], l_hpr[2]);
+  } break;
+  case 's': {
+    float p[3], l_hpr[3];
+    dsGetViewpoint(p, l_hpr);
+    for(int i = 0; i < 3; ++i){
+      xyz[sw_viewpoint][i] = p[i];
+      hpr[sw_viewpoint][i] = l_hpr[i];
+    }
+    sw_viewpoint = 1 - sw_viewpoint;
+    dsSetViewpoint(xyz[sw_viewpoint], hpr[sw_viewpoint]); // set camera
   } break;
   case 'r':
     DestroyObjects();
@@ -435,6 +455,7 @@ void setParameters()
   printf("p: dsSetDrawMode(polyfill_wireframe) for all\n");
   printf("w: dsDrawTriangle(..., wire_solid) for bunny\n");
   printf("v: show view point(x, y, z)\n");
+  printf("s: switch view point\n");
   printf("r: reset all objects\n");
 }
 
@@ -453,9 +474,7 @@ void simLoop(int pause)
 
 void drawStuffStart()
 {
-  static float xyz[3] = {5.36, 2.02, 4.28}; // camera position {3.0, 0.0, 1.0}
-  static float hpr[3] = {-162.0, -31.0, 0.0}; // look at {-180.0, 0.0, 0.0}
-  dsSetViewpoint(xyz, hpr); // set camera
+  dsSetViewpoint(xyz[0], hpr[0]); // set camera
   dsSetSphereQuality(3); // default sphere 1
   dsSetCapsuleQuality(3); // default capsule 3
 }
