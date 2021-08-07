@@ -134,11 +134,21 @@ cout << "TmCube" << endl;
   geomTmCube = CreateTrimeshFromVI(world, space, DENSITY, &tmvCube);
   dBodyID e = dGeomGetBody(geomTmCube);
   dBodySetPosition(e, -1.5, -3.0, 0.5);
+  if(1){
+    dQuaternion q;
+    dQFromAxisAndAngle(q, 1, 1, 1, M_PI / 4);
+    dBodySetQuaternion(e, q);
+  }
   dBodyEnable(e);
 cout << "Cube" << endl;
   geomCube = CreateConvexFromFVP(world, space, DENSITY, &fvpCube);
   dBodyID c = dGeomGetBody(geomCube);
   dBodySetPosition(c, -1.5, -1.5, 0.5);
+  if(1){
+    dQuaternion q;
+    dQFromAxisAndAngle(q, 1, 1, 1, M_PI / 4);
+    dBodySetQuaternion(c, q);
+  }
   dBodyEnable(c);
 cout << "TmIcosahedron" << endl;
   geomTmIcosahedron = CreateTrimeshFromVI(world, space, DENSITY, &tmvIcosahedron);
@@ -293,6 +303,20 @@ void command(int cmd)
   case 'k': dBodySetPosition(ba, ax, ay, az + move_delta); break;
   case 'm': printf("move_delta = %f\n", move_delta *= 0.9); break;
   case 'i': printf("move_delta = %f\n", move_delta *= 1.1); break;
+  case 't': {
+    dBodySetTorque(dGeomGetBody(apple.geom), 0.0, 0.0, 0.5);
+    dBodySetTorque(dGeomGetBody(ball.geom), 0.0, 0.0, 0.5);
+    dBodySetTorque(dGeomGetBody(geomTmTetra), 0.0, 0.0, 0.5);
+    dBodySetTorque(dGeomGetBody(geomTetra), 0.0, 0.0, 0.5);
+    dBodySetTorque(dGeomGetBody(geomTmCube), 0.0, 0.0, 0.5);
+    dBodySetTorque(dGeomGetBody(geomCube), 0.0, 0.0, 0.5);
+    dBodySetTorque(dGeomGetBody(geomTmIcosahedron), 0.0, 0.0, 0.5);
+    dBodySetTorque(dGeomGetBody(geomIcosahedron), 0.0, 0.0, 0.5);
+    dBodySetTorque(dGeomGetBody(geomTmBunny), 0.0, 0.0, 0.5);
+    dBodySetTorque(dGeomGetBody(geomBunny), 0.0, 0.0, 0.5);
+    dBodySetTorque(dGeomGetBody(geomTmCustom), 0.0, 0.0, 0.5);
+    dBodySetTorque(dGeomGetBody(geomCustom), 0.0, 0.0, 0.5);
+  } break;
   case 'o': {
     dBodyID b = dGeomGetBody(apple.geom);
     const dReal *p = dBodyGetPosition(b);
@@ -329,6 +353,7 @@ void setParameters()
   printf("k: ++z\n");
   printf("m: --move_delta\n");
   printf("i: ++move_delta\n");
+  printf("t: set torque\n");
   printf("o: show sphere red location(x, y, z)\n");
   printf("p: dsSetDrawMode(polyfill_wireframe) for all\n");
   printf("w: dsDrawTriangle(..., wire_solid) for bunny\n");
