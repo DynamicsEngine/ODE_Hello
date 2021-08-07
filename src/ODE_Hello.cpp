@@ -25,8 +25,8 @@ using namespace std;
 #define TICK_DELTA 0.01
 #define DENSITY 5.0
 
-float xyz[][3] = {{3.0, 0.0, 1.0}, {5.36, 2.02, 4.28}}; // camera position
-float hpr[][3] = {{-180.0, 0.0, 0.0}, {-162.0, -31.0, 0.0}}; // look at
+float xyz[][3] = {{3.0, 0.0, 1.0}, {5.36, 2.02, 4.28}, {}}; // camera position
+float hpr[][3] = {{-180.0, 0.0, 0.0}, {-162.0, -31.0, 0.0}, {}}; // look at
 int sw_viewpoint = 0;
 float move_delta = 0.1; // delta for x, y, z move
 int wire_solid = 1; // 0: wireframe, 1: solid (for bunny)
@@ -64,7 +64,7 @@ dGeomID geomCustom;
 
 dReal slopeSz[] = {8.0, 0.1, 2.0};
 dReal slopeLR[] = {2.0, 1.0};
-dReal slopeO[][3] = {{0.0, 0.0, 0.0}, {0.0, 0.0, 0.0}}; // offset
+dReal slopeO[][3] = {{0.0, 0.0, 0.0}, {-3.0, 0.0, 0.0}}; // offset
 dGeomID geomSlope[A_SIZE(slopeO)][2]; // composite [n][] = {geomTrans, geomSub}
 
 struct sphere {
@@ -89,6 +89,7 @@ void DrawSphere(struct sphere *s);
 dReal getgBounce(dGeomID id);
 void nearCallback(void *data, dGeomID o1, dGeomID o2);
 
+void showViewPoint(int save);
 void command(int cmd);
 void setParameters();
 void simLoop(int pause);
@@ -134,7 +135,7 @@ cout << "Sphere blue" << endl;
   dBodySetPosition(ball.body, 0.5, 0.0, ball.r);
 cout << "Sphere green" << endl;
   CreateSphere(&roll, world, 0.2, 1.0, 0.8, 0.4, 0.8, 0.4);
-  dBodySetPosition(roll.body, -10.5, 0.0, 1.5); // on the slope
+  dBodySetPosition(roll.body, -12.0, 0.0, 1.2); // on the slope
 
 cout << "Slope" << endl;
   dBodyID s = dBodyCreate(world);
@@ -180,11 +181,11 @@ cout << "Slope" << endl;
     dGeomSetBody(g[0], s);
   }
   dBodySetMass(s, &mass); // CG == (0, 0, 0)
-  dBodySetPosition(s, -12.0, 0.0, 1.5);
+  dBodySetPosition(s, -13.5, 0.0, 1.2);
   if(1){
     dQuaternion o, p, q;
     dQFromAxisAndAngle(q, 1, 0, 0, M_PI / 2);
-    dQFromAxisAndAngle(p, 0, 1, 0, M_PI / 9);
+    dQFromAxisAndAngle(p, 0, 1, 0, M_PI / 18);
     dQMultiply0(o, p, q);
     dBodySetQuaternion(s, o);
   }
@@ -286,11 +287,22 @@ void DrawObjects()
   const dReal *pos = dBodyGetPosition(s);
   const dReal *rot = dBodyGetRotation(s);
   for(int j = 0; j < A_SIZE(slopeO); ++j){
+    dGeomID *g = geomSlope[j];
+    const dReal *gpos = dGeomGetPosition(g[1]);
+    const dReal *grot = dGeomGetRotation(g[1]);
+    dQuaternion nq, gq, q;
+    dQfromR(q, rot);
+    dQfromR(gq, grot);
+    dQMultiply0(nq, gq, q);
+    dMatrix3 nrot;
+    dRfromQ(nrot, nq);
+    dReal rpos[A_SIZE(slopeO[0])];
+    dMultiply0(rpos, nrot, gpos, 3, 3, 1);
     dReal npos[A_SIZE(slopeO[0])];
-    for(int i = 0; i < A_SIZE(slopeO[0]); ++i) npos[i] = pos[i] + slopeO[j][i];
+    for(int i = 0; i < A_SIZE(npos); ++i) npos[i] = pos[i] + rpos[i];
     switch(j){
-    case 0: dsDrawBoxD(npos, rot, slopeSz); break;
-    case 1: dsDrawCylinderD(npos, rot, slopeLR[0], slopeLR[1]); break;
+    case 0: dsDrawBoxD(npos, nrot, slopeSz); break;
+    case 1: dsDrawCylinderD(npos, nrot, slopeLR[0], slopeLR[1]); break;
     }
   }
 
@@ -369,6 +381,22 @@ void nearCallback(void *data, dGeomID o1, dGeomID o2)
   }
 }
 
+void showViewPoint(int save)
+{
+  float p[3], l_hpr[3];
+  dsGetViewpoint(p, l_hpr);
+  printf("view point: %d\n", sw_viewpoint);
+  printf(" xyz(%f, %f, %f)\n", p[0], p[1], p[2]);
+  printf(" hpr(%f, %f, %f)\n", l_hpr[0], l_hpr[1], l_hpr[2]);
+  if(save){
+    for(int i = 0; i < 3; ++i){
+      xyz[sw_viewpoint][i] = p[i];
+      hpr[sw_viewpoint][i] = l_hpr[i];
+    }
+    printf(" saved\n");
+  }
+}
+
 void command(int cmd)
 {
   dBodyID ba = apple.body;
@@ -411,21 +439,12 @@ void command(int cmd)
   } break;
   case 'p': dsSetDrawMode(polyfill_wireframe = 1 - polyfill_wireframe); break;
   case 'w': wire_solid = 1 - wire_solid; break;
-  case 'v': {
-    float p[3], l_hpr[3];
-    dsGetViewpoint(p, l_hpr);
-    printf("view point xyz(%f, %f, %f)\n", p[0], p[1], p[2]);
-    printf("view point hpr(%f, %f, %f)\n", l_hpr[0], l_hpr[1], l_hpr[2]);
-  } break;
+  case 'v': showViewPoint(0); break;
   case 's': {
-    float p[3], l_hpr[3];
-    dsGetViewpoint(p, l_hpr);
-    for(int i = 0; i < 3; ++i){
-      xyz[sw_viewpoint][i] = p[i];
-      hpr[sw_viewpoint][i] = l_hpr[i];
-    }
-    sw_viewpoint = 1 - sw_viewpoint;
+    showViewPoint(1);
+    sw_viewpoint = (sw_viewpoint + 1) % A_SIZE(hpr);
     dsSetViewpoint(xyz[sw_viewpoint], hpr[sw_viewpoint]); // set camera
+    showViewPoint(0);
   } break;
   case 'r':
     DestroyObjects();
@@ -454,7 +473,7 @@ void setParameters()
   printf("o: show sphere red location(x, y, z)\n");
   printf("p: dsSetDrawMode(polyfill_wireframe) for all\n");
   printf("w: dsDrawTriangle(..., wire_solid) for bunny\n");
-  printf("v: show view point(x, y, z)\n");
+  printf("v: show view point (x, y, z) (hpr)\n");
   printf("s: switch view point\n");
   printf("r: reset all objects\n");
 }
@@ -475,6 +494,8 @@ void simLoop(int pause)
 void drawStuffStart()
 {
   dsSetViewpoint(xyz[0], hpr[0]); // set camera
+  sw_viewpoint = A_SIZE(hpr) - 1;
+  showViewPoint(1);
   dsSetSphereQuality(3); // default sphere 1
   dsSetCapsuleQuality(3); // default capsule 3
 }
