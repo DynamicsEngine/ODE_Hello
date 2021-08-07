@@ -176,11 +176,8 @@ cout << "Slope" << endl;
     dGeomSetPosition(g[1], o[0]-mass.c[0], o[1]-mass.c[1], o[2]-mass.c[2]);
   }
   dMassTranslate(&mass, -mass.c[0], -mass.c[1], -mass.c[2]);
-  for(int j = 0; j < A_SIZE(slopeO); ++j){
-    dGeomID *g = geomSlope[j];
-    dGeomSetBody(g[0], s);
-  }
   dBodySetMass(s, &mass); // CG == (0, 0, 0)
+  for(int j = 0; j < A_SIZE(slopeO); ++j) dGeomSetBody(geomSlope[j][0], s);
   dBodySetPosition(s, -13.5, 0.0, 1.2);
   if(1){
     dQuaternion o, p, q;
@@ -189,7 +186,7 @@ cout << "Slope" << endl;
     dQMultiply0(o, p, q);
     dBodySetQuaternion(s, o);
   }
-  dBodyDisable(s); // dBodyEnable(s);
+  dBodyEnable(s); // dBodyDisable(s);
 
 cout << "TmTetra" << endl;
   geomTmTetra = CreateTrimeshFromVI(world, space, DENSITY, &tmvTetra);
@@ -365,7 +362,8 @@ void nearCallback(void *data, dGeomID o1, dGeomID o2)
       p->surface.soft_erp = 0.2;
       p->surface.soft_cfm = 0.001;
       dJointID c = dJointCreateContact(world, contactgroup, p);
-      dJointAttach(c, dGeomGetBody(p->geom.g1), dGeomGetBody(p->geom.g2));
+      // dJointAttach(c, dGeomGetBody(p->geom.g1), dGeomGetBody(p->geom.g2));
+      dJointAttach(c, dGeomGetBody(o1), dGeomGetBody(o2));
     }
   }else{
     dReal bounce = getgBounce(o1) * getgBounce(o2);
@@ -376,7 +374,8 @@ void nearCallback(void *data, dGeomID o1, dGeomID o2)
       p->surface.bounce_vel = 0.01; // minimum velocity for bounce
       p->surface.mu = 0.5; // or dInfinity
       dJointID c = dJointCreateContact(world, contactgroup, p);
-      dJointAttach(c, dGeomGetBody(p->geom.g1), dGeomGetBody(p->geom.g2));
+      // dJointAttach(c, dGeomGetBody(p->geom.g1), dGeomGetBody(p->geom.g2));
+      dJointAttach(c, dGeomGetBody(o1), dGeomGetBody(o2));
     }
   }
 }
