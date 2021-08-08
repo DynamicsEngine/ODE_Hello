@@ -65,7 +65,8 @@ dGeomID geomCustom;
 dReal slopeSz[] = {8.0, 0.1, 2.0};
 dReal slopeLR[] = {2.0, 1.0};
 dReal slopeO[][3] = {{0.0, 0.0, 0.0}, {-3.0, 0.0, 0.0}}; // offset
-dGeomID geomSlope[A_SIZE(slopeO)][2]; // composite [n][] = {geomTrans, geomSub}
+const int slopeNC = A_SIZE(slopeO); // number of composite parts
+dGeomID geomSlope[slopeNC][2]; // composite [n][] = {geomTrans, geomSub}
 
 struct sphere {
   dBodyID body;
@@ -110,7 +111,7 @@ void DestroyObjects()
   DestroyObject(roll.geom);
 
   dBodyDestroy(dGeomGetBody(geomSlope[0][0]));
-  for(int j = 0; j < A_SIZE(slopeO); ++j) dGeomDestroy(geomSlope[j][0]);
+  for(int j = 0; j < slopeNC; ++j) dGeomDestroy(geomSlope[j][0]);
 
   DestroyObject(geomTmTetra);
   DestroyObject(geomTetra);
@@ -141,7 +142,7 @@ cout << "Slope" << endl;
   dBodyID s = dBodyCreate(world);
   dMass mass;
   dMassSetZero(&mass);
-  for(int j = 0; j < A_SIZE(slopeO); ++j){
+  for(int j = 0; j < slopeNC; ++j){
     dMass subm;
     dMassSetZero(&subm);
     dReal *o = slopeO[j];
@@ -170,14 +171,14 @@ cout << "Slope" << endl;
     dMassRotate(&subm, rot);
     dMassAdd(&mass, &subm);
   } // CG != (0, 0, 0)
-  for(int j = 0; j < A_SIZE(slopeO); ++j){
+  for(int j = 0; j < slopeNC; ++j){
     dReal *o = slopeO[j];
     dGeomID *g = geomSlope[j];
     dGeomSetPosition(g[1], o[0]-mass.c[0], o[1]-mass.c[1], o[2]-mass.c[2]);
   }
   dMassTranslate(&mass, -mass.c[0], -mass.c[1], -mass.c[2]);
   dBodySetMass(s, &mass); // CG == (0, 0, 0)
-  for(int j = 0; j < A_SIZE(slopeO); ++j) dGeomSetBody(geomSlope[j][0], s);
+  for(int j = 0; j < slopeNC; ++j) dGeomSetBody(geomSlope[j][0], s);
   dBodySetPosition(s, -13.5, 0.0, 1.2);
   if(1){
     dQuaternion o, p, q;
@@ -282,26 +283,8 @@ void DrawObjects()
   dsSetColor(roll.R, roll.G, roll.B);
   DrawGeom(roll.geom, NULL, NULL);
 
-  dBodyID s = dGeomGetBody(geomSlope[0][0]);
   dsSetColor(1.0, 1.0, 1.0);
-  const dReal *pos = dBodyGetPosition(s);
-  const dReal *rot = dBodyGetRotation(s);
-  for(int j = 0; j < A_SIZE(slopeO); ++j){
-    dGeomID *g = geomSlope[j];
-    const dReal *gpos = dGeomGetPosition(g[1]);
-    const dReal *grot = dGeomGetRotation(g[1]);
-    dQuaternion nq, gq, q;
-    dQfromR(q, rot);
-    dQfromR(gq, grot);
-    dQMultiply0(nq, gq, q);
-    dMatrix3 nrot;
-    dRfromQ(nrot, nq);
-    dReal rpos[A_SIZE(slopeO[0])];
-    dMultiply0(rpos, nrot, gpos, 3, 3, 1);
-    dReal npos[A_SIZE(slopeO[0])];
-    for(int i = 0; i < A_SIZE(npos); ++i) npos[i] = pos[i] + rpos[i];
-    DrawGeom(g[1], npos, nrot);
-  }
+  for(int j = 0; j < slopeNC; ++j) DrawGeom(geomSlope[j][0], NULL, NULL);
 
   DrawTrimeshObject(geomTmTetra, &tmvTetra, 0.8, 0.6, 0.2, wire_solid);
   DrawConvexObject(geomTetra, &fvpTetra, 0.4, 0.8, 0.4);
@@ -338,6 +321,17 @@ void DrawGeom(dGeomID geom, const dReal *pos, const dReal *rot)
     dReal len, radius;
     dGeomCapsuleGetParams(geom, &radius, &len);
     dsDrawCapsuleD(pos, rot, len, radius);
+  } break;
+  case dGeomTransformClass: {
+    dGeomID gt = dGeomTransformGetGeom(geom);
+    const dReal *gtpos = dGeomGetPosition(gt);
+    const dReal *gtrot = dGeomGetRotation(gt);
+    dVector3 rpos;
+    dMatrix3 rrot;
+    dMULTIPLY0_331(rpos, rot, gtpos);
+    for(int i = 0; i < A_SIZE(rpos); ++i) rpos[i] += pos[i];
+    dMULTIPLY0_333(rrot, rot, gtrot);
+    DrawGeom(gt, rpos, rrot);
   } break;
   default: printf("not implemented type dGeomGetClass() in DrawGeom\n"); break;
   }
