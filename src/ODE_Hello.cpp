@@ -74,21 +74,40 @@ struct sphere {
   dBodyID body;
   dGeomID geom;
   dReal r, m;
-  dReal R, G, B;
+  dVector4 colour;
   dReal gBounce;
 };
 
 struct sphere apple, ball, roll;
+
+dVector4 palette[] = {
+  {0.8, 0.4, 0.4, 1.0}, // apple
+  {0.4, 0.4, 0.8, 1.0}, // ball
+  {0.4, 0.8, 0.4, 1.0}, // roll
+  {1.0, 1.0, 1.0, 1.0}, // geomSlope
+  {0.8, 0.6, 0.2, 1.0}, // geomTmTetra
+  {0.4, 0.8, 0.4, 1.0}, // geomTetra
+  {0.6, 0.8, 0.2, 1.0}, // geomTmCube
+  {0.8, 0.8, 0.4, 1.0}, // geomCube
+  {0.2, 0.8, 0.6, 1.0}, // geomTmIcosahedron
+  {0.4, 0.8, 0.8, 1.0}, // geomIcosahedron
+  {0.8, 0.2, 0.6, 1.0}, // geomTmBunny
+  {0.8, 0.4, 0.8, 1.0}, // geomBunny
+  {0.6, 0.2, 0.8, 1.0}, // geomTmCustom
+  {0.2, 0.6, 0.8, 1.0}, // geomCustom
+  {1.0, 1.0, 1.0, 1.0}
+};
 
 void DestroyCompositeObject(dGeomID (*geomcomposite)[2], int num);
 void DestroyObject(dGeomID geom);
 void DestroyObjects();
 void CreateObjects(dWorldID world);
 void DrawObjects();
-void DrawGeom(dGeomID geom, const dReal *pos, const dReal *rot);
+void DrawGeom(dGeomID geom, const dReal *pos, const dReal *rot,
+  const dReal *colour, int ws);
 
 void CreateSphere(struct sphere *s,
-  dWorldID world, dReal r, dReal m, dReal bounce, dReal R, dReal G, dReal B);
+  dWorldID world, dReal r, dReal m, dReal bounce, const dReal *colour);
 
 dReal getgBounce(dGeomID id);
 void nearCallback(void *data, dGeomID o1, dGeomID o2);
@@ -136,14 +155,14 @@ void DestroyObjects()
 void CreateObjects(dWorldID world)
 {
 cout << "Sphere red" << endl;
-  CreateSphere(&apple, world, 0.2, 1.0, 1.0, 0.8, 0.4, 0.4);
+  CreateSphere(&apple, world, 0.2, 1.0, 1.0, palette[0]);
   dBodySetPosition(apple.body, -0.15, 0.31, 2.5); // x, y on the bunny
   dBodyDisable(apple.body);
 cout << "Sphere blue" << endl;
-  CreateSphere(&ball, world, 0.1, 1.0, 0.5, 0.4, 0.4, 0.8);
+  CreateSphere(&ball, world, 0.1, 1.0, 0.5, palette[1]);
   dBodySetPosition(ball.body, 0.5, 0.0, ball.r);
 cout << "Sphere green" << endl;
-  CreateSphere(&roll, world, 0.2, 1.0, 0.8, 0.4, 0.8, 0.4);
+  CreateSphere(&roll, world, 0.2, 1.0, 0.8, palette[2]);
   dBodySetPosition(roll.body, -12.0, 0.0, 1.2); // on the slope
 
 cout << "Slope" << endl;
@@ -284,33 +303,32 @@ void DrawObjects()
 {
   dsSetTexture(DS_WOOD); // DS_SKY DS_GROUND DS_CHECKERED
 
-  dsSetColor(apple.R, apple.G, apple.B);
-  DrawGeom(apple.geom, NULL, NULL);
-  dsSetColor(ball.R, ball.G, ball.B);
-  DrawGeom(ball.geom, NULL, NULL);
-  dsSetColor(roll.R, roll.G, roll.B);
-  DrawGeom(roll.geom, NULL, NULL);
+  DrawGeom(apple.geom, NULL, NULL, apple.colour, wire_solid);
+  DrawGeom(ball.geom, NULL, NULL, ball.colour, wire_solid);
+  DrawGeom(roll.geom, NULL, NULL, roll.colour, wire_solid);
 
-  dsSetColor(1.0, 1.0, 1.0);
-  for(int j = 0; j < slopeNC; ++j) DrawGeom(geomSlope[j][0], NULL, NULL);
+  for(int j = 0; j < slopeNC; ++j)
+    DrawGeom(geomSlope[j][0], NULL, NULL, palette[3], wire_solid);
 
-  DrawTrimeshObject(geomTmTetra, &tmvTetra, 0.8, 0.6, 0.2, wire_solid);
-  DrawConvexObject(geomTetra, &fvpTetra, 0.4, 0.8, 0.4);
-  DrawTrimeshObject(geomTmCube, &tmvCube, 0.6, 0.8, 0.2, wire_solid);
-  DrawConvexObject(geomCube, &fvpCube, 0.8, 0.8, 0.4);
-  DrawTrimeshObject(geomTmIcosahedron, &tmvIcosahedron, 0.2, 0.8, 0.6, wire_solid);
-  DrawConvexObject(geomIcosahedron, &fvpIcosahedron, 0.4, 0.8, 0.8);
-  DrawTrimeshObject(geomTmBunny, &tmvBunny, 0.8, 0.2, 0.6, wire_solid);
-  DrawConvexObject(geomBunny, &fvpBunny, 0.8, 0.4, 0.8);
-  DrawTrimeshObject(geomTmCustom, &tmvCustom, 0.6, 0.2, 0.8, wire_solid);
-  DrawConvexObject(geomCustom, &fvpCustom, 0.2, 0.6, 0.8);
+  DrawTrimeshObject(geomTmTetra, palette[4], wire_solid);
+  DrawConvexObject(geomTetra, &fvpTetra, palette[5]);
+  DrawTrimeshObject(geomTmCube, palette[6], wire_solid);
+  DrawConvexObject(geomCube, &fvpCube, palette[7]);
+  DrawTrimeshObject(geomTmIcosahedron, palette[8], wire_solid);
+  DrawConvexObject(geomIcosahedron, &fvpIcosahedron, palette[9]);
+  DrawTrimeshObject(geomTmBunny, palette[10], wire_solid);
+  DrawConvexObject(geomBunny, &fvpBunny, palette[11]);
+  DrawTrimeshObject(geomTmCustom, palette[12], wire_solid);
+  DrawConvexObject(geomCustom, &fvpCustom, palette[13]);
 }
 
-void DrawGeom(dGeomID geom, const dReal *pos, const dReal *rot)
+void DrawGeom(dGeomID geom, const dReal *pos, const dReal *rot,
+  const dReal *colour, int ws)
 {
   if(!geom) return;
   if(!pos) pos = dGeomGetPosition(geom);
   if(!rot) rot = dGeomGetRotation(geom);
+  if(colour) dsSetColor(colour[0], colour[1], colour[2]);
   switch(dGeomGetClass(geom)){
   case dSphereClass: {
     dsDrawSphereD(pos, rot, dGeomSphereGetRadius(geom));
@@ -339,18 +357,19 @@ void DrawGeom(dGeomID geom, const dReal *pos, const dReal *rot)
     dMULTIPLY0_331(rpos, rot, gtpos);
     for(int i = 0; i < A_SIZE(rpos); ++i) rpos[i] += pos[i];
     dMULTIPLY0_333(rrot, rot, gtrot);
-    DrawGeom(gt, rpos, rrot);
+    DrawGeom(gt, rpos, rrot, colour, ws);
   } break;
   default: printf("not implemented type dGeomGetClass() in DrawGeom\n"); break;
   }
 }
 
 void CreateSphere(struct sphere *s,
-  dWorldID world, dReal r, dReal m, dReal bounce, dReal R, dReal G, dReal B)
+  dWorldID world, dReal r, dReal m, dReal bounce, const dReal *colour)
 {
   s->body = dBodyCreate(world);
-  s->r = r, s->m = m, s->R = R, s->G = G, s->B = B;
+  s->r = r, s->m = m;
   s->gBounce = bounce;
+  for(int i = 0; i < 4; ++i) s->colour[i] = colour[i];
   dMass mass;
   dMassSetZero(&mass);
   dMassSetSphereTotal(&mass, m, r);
