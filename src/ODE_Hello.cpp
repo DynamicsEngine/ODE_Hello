@@ -7,6 +7,7 @@
 */
 
 #include <iostream>
+#include <map>
 
 #include <ode/ode.h>
 #include <drawstuff/drawstuff.h>
@@ -52,6 +53,8 @@ extern convexfvp fvpBunny; // body drawing by fvpBunny causes rocky
 
 extern trimeshvi tmvCustom; // now tetra
 extern convexfvp fvpCustom; // now tetra
+
+map<dGeomID, convexfvp *> geom_convex_manager;
 
 dGeomID geomTmTetra;
 dGeomID geomTetra;
@@ -150,6 +153,8 @@ void DestroyObjects()
   DestroyObject(geomBunny);
   DestroyObject(geomTmCustom);
   DestroyObject(geomCustom);
+
+  geom_convex_manager.clear();
 }
 
 void CreateObjects(dWorldID world)
@@ -223,6 +228,7 @@ cout << "TmTetra" << endl;
   dBodyEnable(t); // dBodyDisable(t);
 cout << "Tetra" << endl;
   geomTetra = CreateConvexFromFVP(world, space, DENSITY, &fvpTetra);
+  geom_convex_manager.insert(make_pair(geomTetra, &fvpTetra));
   dBodyID b = dGeomGetBody(geomTetra);
   dBodySetPosition(b, 0.0, 1.5, 0.5);
   dBodyEnable(b);
@@ -238,6 +244,7 @@ cout << "TmCube" << endl;
   dBodyEnable(e);
 cout << "Cube" << endl;
   geomCube = CreateConvexFromFVP(world, space, DENSITY, &fvpCube);
+  geom_convex_manager.insert(make_pair(geomCube, &fvpCube));
   dBodyID c = dGeomGetBody(geomCube);
   dBodySetPosition(c, -1.5, -1.5, 0.5);
   if(1){
@@ -253,6 +260,7 @@ cout << "TmIcosahedron" << endl;
   dBodyEnable(h);
 cout << "Icosahedron" << endl;
   geomIcosahedron = CreateConvexFromFVP(world, space, DENSITY, &fvpIcosahedron);
+  geom_convex_manager.insert(make_pair(geomIcosahedron, &fvpIcosahedron));
   dBodyID i = dGeomGetBody(geomIcosahedron);
   dBodySetPosition(i, -1.5, 1.5, 0.5);
   dBodyEnable(i);
@@ -284,6 +292,7 @@ cout << "TmBunny" << endl;
   dBodyEnable(m); // dBodyDisable(m);
 cout << "Bunny" << endl;
   geomBunny = CreateConvexFromFVP(world, space, DENSITY, &fvpBunny);
+  geom_convex_manager.insert(make_pair(geomBunny, &fvpBunny));
   dBodyID r = dGeomGetBody(geomBunny);
   dBodySetPosition(r, -3.0, -1.5, 2.0);
   dBodyEnable(r);
@@ -294,6 +303,7 @@ cout << "TmCustom" << endl;
   dBodyEnable(d);
 cout << "Custom" << endl;
   geomCustom = CreateConvexFromFVP(world, space, DENSITY, &fvpCustom);
+  geom_convex_manager.insert(make_pair(geomCustom, &fvpCustom));
   dBodyID o = dGeomGetBody(geomCustom);
   dBodySetPosition(o, -3.0, 1.5, 0.5);
   dBodyEnable(o);
@@ -311,15 +321,15 @@ void DrawObjects()
     DrawGeom(geomSlope[j][0], NULL, NULL, palette[3], wire_solid);
 
   DrawGeom(geomTmTetra, NULL, NULL, palette[4], wire_solid);
-  DrawConvexObject(geomTetra, &fvpTetra, palette[5]);
+  DrawGeom(geomTetra, NULL, NULL, palette[5], wire_solid);
   DrawGeom(geomTmCube, NULL, NULL, palette[6], wire_solid);
-  DrawConvexObject(geomCube, &fvpCube, palette[7]);
+  DrawGeom(geomCube, NULL, NULL, palette[7], wire_solid);
   DrawGeom(geomTmIcosahedron, NULL, NULL, palette[8], wire_solid);
-  DrawConvexObject(geomIcosahedron, &fvpIcosahedron, palette[9]);
+  DrawGeom(geomIcosahedron, NULL, NULL, palette[9], wire_solid);
   DrawGeom(geomTmBunny, NULL, NULL, palette[10], wire_solid);
-  DrawConvexObject(geomBunny, &fvpBunny, palette[11]);
+  DrawGeom(geomBunny, NULL, NULL, palette[11], wire_solid);
   DrawGeom(geomTmCustom, NULL, NULL, palette[12], wire_solid);
-  DrawConvexObject(geomCustom, &fvpCustom, palette[13]);
+  DrawGeom(geomCustom, NULL, NULL, palette[13], wire_solid);
 }
 
 void DrawGeom(dGeomID geom, const dReal *pos, const dReal *rot,
@@ -329,7 +339,8 @@ void DrawGeom(dGeomID geom, const dReal *pos, const dReal *rot,
   if(!pos) pos = dGeomGetPosition(geom);
   if(!rot) rot = dGeomGetRotation(geom);
   if(colour) dsSetColor(colour[0], colour[1], colour[2]);
-  switch(dGeomGetClass(geom)){
+  int clsID = dGeomGetClass(geom);
+  switch(clsID){
   case dSphereClass: {
     dsDrawSphereD(pos, rot, dGeomSphereGetRadius(geom));
   } break;
@@ -347,6 +358,12 @@ void DrawGeom(dGeomID geom, const dReal *pos, const dReal *rot,
     dReal len, radius;
     dGeomCapsuleGetParams(geom, &radius, &len);
     dsDrawCapsuleD(pos, rot, len, radius);
+  } break;
+  case dConvexClass: {
+    convexfvp *fvp = geom_convex_manager[geom];
+    if(!fvp) printf("not managed convex in DrawGeom (geomID: %p)\n", geom);
+    else dsDrawConvexD(pos, rot,
+      fvp->faces, fvp->faceCount, fvp->vtx, fvp->vtxCount, fvp->polygons);
   } break;
   case dTriMeshClass: {
     dVector3 tpos = {0.0, 0.0, 0.0};
@@ -370,7 +387,10 @@ void DrawGeom(dGeomID geom, const dReal *pos, const dReal *rot,
     dMULTIPLY0_333(rrot, rot, gtrot);
     DrawGeom(gt, rpos, rrot, colour, ws);
   } break;
-  default: printf("not implemented type dGeomGetClass() in DrawGeom\n"); break;
+  default:
+    printf("not implemented type dGeomGetClass() in DrawGeom\n");
+    printf(" geomID: %p, classID: %d\n", geom, clsID);
+    break;
   }
 }
 

@@ -54,12 +54,3 @@ dGeomID CreateConvexFromFVP(dWorldID world, dSpaceID space,
   dGeomSetBody(geom, b);
   return geom;
 }
-
-void DrawConvexObject(dGeomID geom, convexfvp *fvp, const dReal *colour)
-{
-  dsSetColor(colour[0], colour[1], colour[2]);
-  const dReal *pos = dGeomGetPosition(geom);
-  const dReal *rot = dGeomGetRotation(geom);
-  dsDrawConvexD(pos, rot,
-    fvp->faces, fvp->faceCount, fvp->vtx, fvp->vtxCount, fvp->polygons);
-}
