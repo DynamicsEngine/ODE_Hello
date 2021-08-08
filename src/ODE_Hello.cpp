@@ -25,12 +25,14 @@ using namespace std;
 #define TICK_DELTA 0.01
 #define DENSITY 5.0
 
-float xyz[][3] = {{3.0, 0.0, 1.0}, {5.36, 2.02, 4.28}, {}}; // camera position
-float hpr[][3] = {{-180.0, 0.0, 0.0}, {-162.0, -31.0, 0.0}, {}}; // look at
-int sw_viewpoint = 0;
+int sw_viewpoint = 0; // xyz: camera position, hpr: look at
+float xyz[][3] = {{5.0, 0.0, 2.0}, {5.36, 2.02, 4.28}, {-8.3, -14.1, 3.1}};
+float hpr[][3] = {{-180.0, 0.0, 0.0}, {-162.0, -31.0, 0.0}, {84.5, 1.0, 0.0}};
+
 float move_delta = 0.1; // delta for x, y, z move
 int wire_solid = 1; // 0: wireframe, 1: solid (for bunny)
 int polyfill_wireframe = 0; // 0: solid, 1: wireframe (for all)
+
 dWorldID world; // for body
 dSpaceID space; // for geom collision
 dGeomID ground;
@@ -78,6 +80,7 @@ struct sphere {
 
 struct sphere apple, ball, roll;
 
+void DestroyCompositeObject(dGeomID (*geomcomposite)[2], int num);
 void DestroyObject(dGeomID geom);
 void DestroyObjects();
 void CreateObjects(dWorldID world);
@@ -98,6 +101,12 @@ void simLoop(int pause);
 void drawStuffStart();
 void setDrawStuff(dsFunctions *fn);
 
+void DestroyCompositeObject(dGeomID (*geomcomposite)[2], int num)
+{
+  dBodyDestroy(dGeomGetBody(geomcomposite[0][0]));
+  for(int j = 0; j < num; ++j) dGeomDestroy(geomcomposite[j][0]);
+}
+
 void DestroyObject(dGeomID geom)
 {
   dBodyDestroy(dGeomGetBody(geom));
@@ -110,8 +119,7 @@ void DestroyObjects()
   DestroyObject(ball.geom);
   DestroyObject(roll.geom);
 
-  dBodyDestroy(dGeomGetBody(geomSlope[0][0]));
-  for(int j = 0; j < slopeNC; ++j) dGeomDestroy(geomSlope[j][0]);
+  DestroyCompositeObject(geomSlope, slopeNC);
 
   DestroyObject(geomTmTetra);
   DestroyObject(geomTetra);
@@ -506,9 +514,8 @@ void simLoop(int pause)
 
 void drawStuffStart()
 {
-  dsSetViewpoint(xyz[0], hpr[0]); // set camera
-  sw_viewpoint = A_SIZE(hpr) - 1;
-  showViewPoint(1);
+  dsSetViewpoint(xyz[sw_viewpoint], hpr[sw_viewpoint]); // set camera
+  showViewPoint(0);
   dsSetSphereQuality(3); // default sphere 1
   dsSetCapsuleQuality(3); // default capsule 3
 }

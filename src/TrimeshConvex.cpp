@@ -58,10 +58,10 @@ dGeomID CreateConvexFromFVP(dWorldID world, dSpaceID space,
 void DrawTrimeshObject(dGeomID geom, trimeshvi *tmv,
   dReal R, dReal G, dReal B, int ws)
 {
-  dBodyID b = dGeomGetBody(geom);
   dsSetColor(R, G, B);
-  const dReal *pos = dBodyGetPosition(b);
-  const dReal *rot = dBodyGetRotation(b);
+#if 0
+  const dReal *pos = dGeomGetPosition(geom);
+  const dReal *rot = dGeomGetRotation(geom);
   dReal *vtx = tmv->vtx;
   dTriIndex *idx = tmv->indices;
   for(int i = 0; i < tmv->indexCount; i += 3){
@@ -77,15 +77,25 @@ void DrawTrimeshObject(dGeomID geom, trimeshvi *tmv,
       vtx[idx[i + 2] * 3 + 2]};
     dsDrawTriangleD(pos, rot, &v[0], &v[3], &v[6], ws);
   }
+#else
+  dVector3 tpos = {0.0, 0.0, 0.0};
+  dMatrix3 trot;
+  dRSetIdentity(trot);
+  int triCount = dGeomTriMeshGetTriangleCount(geom);
+  for(int i = 0; i < triCount; ++i){
+    dVector3 v0, v1, v2;
+    dGeomTriMeshGetTriangle(geom, i, &v0, &v1, &v2); // already transformed
+    dsDrawTriangleD(tpos, trot, v0, v1, v2, ws);
+  }
+#endif
 }
 
 void DrawConvexObject(dGeomID geom, convexfvp *fvp,
   dReal R, dReal G, dReal B)
 {
-  dBodyID b = dGeomGetBody(geom);
   dsSetColor(R, G, B);
-  const dReal *pos = dBodyGetPosition(b);
-  const dReal *rot = dBodyGetRotation(b);
+  const dReal *pos = dGeomGetPosition(geom);
+  const dReal *rot = dGeomGetRotation(geom);
   dsDrawConvexD(pos, rot,
     fvp->faces, fvp->faceCount, fvp->vtx, fvp->vtxCount, fvp->polygons);
 }
