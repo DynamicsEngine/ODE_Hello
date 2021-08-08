@@ -81,10 +81,10 @@ void DestroyObject(dGeomID geom);
 void DestroyObjects();
 void CreateObjects(dWorldID world);
 void DrawObjects();
+void DrawGeom(dGeomID geom, const dReal *pos, const dReal *rot);
 
 void CreateSphere(struct sphere *s,
   dWorldID world, dReal r, dReal m, dReal bounce, dReal R, dReal G, dReal B);
-void DrawSphere(struct sphere *s);
 
 dReal getgBounce(dGeomID id);
 void nearCallback(void *data, dGeomID o1, dGeomID o2);
@@ -275,9 +275,12 @@ void DrawObjects()
 {
   dsSetTexture(DS_WOOD); // DS_SKY DS_GROUND DS_CHECKERED
 
-  DrawSphere(&apple);
-  DrawSphere(&ball);
-  DrawSphere(&roll);
+  dsSetColor(apple.R, apple.G, apple.B);
+  DrawGeom(apple.geom, NULL, NULL);
+  dsSetColor(ball.R, ball.G, ball.B);
+  DrawGeom(ball.geom, NULL, NULL);
+  dsSetColor(roll.R, roll.G, roll.B);
+  DrawGeom(roll.geom, NULL, NULL);
 
   dBodyID s = dGeomGetBody(geomSlope[0][0]);
   dsSetColor(1.0, 1.0, 1.0);
@@ -297,10 +300,7 @@ void DrawObjects()
     dMultiply0(rpos, nrot, gpos, 3, 3, 1);
     dReal npos[A_SIZE(slopeO[0])];
     for(int i = 0; i < A_SIZE(npos); ++i) npos[i] = pos[i] + rpos[i];
-    switch(j){
-    case 0: dsDrawBoxD(npos, nrot, slopeSz); break;
-    case 1: dsDrawCylinderD(npos, nrot, slopeLR[0], slopeLR[1]); break;
-    }
+    DrawGeom(g[1], npos, nrot);
   }
 
   DrawTrimeshObject(geomTmTetra, &tmvTetra, 0.8, 0.6, 0.2, wire_solid);
@@ -315,6 +315,34 @@ void DrawObjects()
   DrawConvexObject(geomCustom, &fvpCustom, 0.2, 0.6, 0.8);
 }
 
+void DrawGeom(dGeomID geom, const dReal *pos, const dReal *rot)
+{
+  if(!geom) return;
+  if(!pos) pos = dGeomGetPosition(geom);
+  if(!rot) rot = dGeomGetRotation(geom);
+  switch(dGeomGetClass(geom)){
+  case dSphereClass: {
+    dsDrawSphereD(pos, rot, dGeomSphereGetRadius(geom));
+  } break;
+  case dBoxClass: {
+    dVector3 lxyz;
+    dGeomBoxGetLengths(geom, lxyz);
+    dsDrawBoxD(pos, rot, lxyz);
+  } break;
+  case dCylinderClass: {
+    dReal len, radius;
+    dGeomCylinderGetParams(geom, &radius, &len);
+    dsDrawCylinderD(pos, rot, len, radius);
+  } break;
+  case dCapsuleClass: {
+    dReal len, radius;
+    dGeomCapsuleGetParams(geom, &radius, &len);
+    dsDrawCapsuleD(pos, rot, len, radius);
+  } break;
+  default: printf("not implemented type dGeomGetClass() in DrawGeom\n"); break;
+  }
+}
+
 void CreateSphere(struct sphere *s,
   dWorldID world, dReal r, dReal m, dReal bounce, dReal R, dReal G, dReal B)
 {
@@ -327,14 +355,6 @@ void CreateSphere(struct sphere *s,
   dBodySetMass(s->body, &mass);
   s->geom = dCreateSphere(space, r);
   dGeomSetBody(s->geom, s->body);
-}
-
-void DrawSphere(struct sphere *s)
-{
-  dsSetColor(s->R, s->G, s->B);
-  const dReal *pos = dBodyGetPosition(s->body);
-  const dReal *rot = dBodyGetRotation(s->body);
-  dsDrawSphereD(pos, rot, s->r);
 }
 
 dReal getgBounce(dGeomID id)
@@ -374,8 +394,8 @@ void nearCallback(void *data, dGeomID o1, dGeomID o2)
       p->surface.bounce_vel = 0.01; // minimum velocity for bounce
       p->surface.mu = 0.5; // or dInfinity
       dJointID c = dJointCreateContact(world, contactgroup, p);
-      // dJointAttach(c, dGeomGetBody(p->geom.g1), dGeomGetBody(p->geom.g2));
-      dJointAttach(c, dGeomGetBody(o1), dGeomGetBody(o2));
+      dJointAttach(c, dGeomGetBody(p->geom.g1), dGeomGetBody(p->geom.g2));
+      // dJointAttach(c, dGeomGetBody(o1), dGeomGetBody(o2));
     }
   }
 }
