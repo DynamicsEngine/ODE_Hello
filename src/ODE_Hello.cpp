@@ -310,15 +310,15 @@ void DrawObjects()
   for(int j = 0; j < slopeNC; ++j)
     DrawGeom(geomSlope[j][0], NULL, NULL, palette[3], wire_solid);
 
-  DrawTrimeshObject(geomTmTetra, palette[4], wire_solid);
+  DrawGeom(geomTmTetra, NULL, NULL, palette[4], wire_solid);
   DrawConvexObject(geomTetra, &fvpTetra, palette[5]);
-  DrawTrimeshObject(geomTmCube, palette[6], wire_solid);
+  DrawGeom(geomTmCube, NULL, NULL, palette[6], wire_solid);
   DrawConvexObject(geomCube, &fvpCube, palette[7]);
-  DrawTrimeshObject(geomTmIcosahedron, palette[8], wire_solid);
+  DrawGeom(geomTmIcosahedron, NULL, NULL, palette[8], wire_solid);
   DrawConvexObject(geomIcosahedron, &fvpIcosahedron, palette[9]);
-  DrawTrimeshObject(geomTmBunny, palette[10], wire_solid);
+  DrawGeom(geomTmBunny, NULL, NULL, palette[10], wire_solid);
   DrawConvexObject(geomBunny, &fvpBunny, palette[11]);
-  DrawTrimeshObject(geomTmCustom, palette[12], wire_solid);
+  DrawGeom(geomTmCustom, NULL, NULL, palette[12], wire_solid);
   DrawConvexObject(geomCustom, &fvpCustom, palette[13]);
 }
 
@@ -347,6 +347,17 @@ void DrawGeom(dGeomID geom, const dReal *pos, const dReal *rot,
     dReal len, radius;
     dGeomCapsuleGetParams(geom, &radius, &len);
     dsDrawCapsuleD(pos, rot, len, radius);
+  } break;
+  case dTriMeshClass: {
+    dVector3 tpos = {0.0, 0.0, 0.0};
+    dMatrix3 trot;
+    dRSetIdentity(trot);
+    int triCount = dGeomTriMeshGetTriangleCount(geom);
+    for(int i = 0; i < triCount; ++i){
+      dVector3 v0, v1, v2;
+      dGeomTriMeshGetTriangle(geom, i, &v0, &v1, &v2); // already transformed
+      dsDrawTriangleD(tpos, trot, v0, v1, v2, ws);
+    }
   } break;
   case dGeomTransformClass: {
     dGeomID gt = dGeomTransformGetGeom(geom);

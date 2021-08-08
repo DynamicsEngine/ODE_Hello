@@ -30,7 +30,6 @@ extern dGeomID CreateTrimeshFromVI(dWorldID world, dSpaceID space,
 extern dGeomID CreateConvexFromFVP(dWorldID world, dSpaceID space,
   dReal density, convexfvp *fvp);
 
-extern void DrawTrimeshObject(dGeomID geom, const dReal *colour, int ws);
 extern void DrawConvexObject(dGeomID geom, convexfvp *fvp, const dReal *colour);
 
 #endif // __TRIMESHCONVEX_H__

@@ -55,20 +55,6 @@ dGeomID CreateConvexFromFVP(dWorldID world, dSpaceID space,
   return geom;
 }
 
-void DrawTrimeshObject(dGeomID geom, const dReal *colour, int ws)
-{
-  dsSetColor(colour[0], colour[1], colour[2]);
-  dVector3 tpos = {0.0, 0.0, 0.0};
-  dMatrix3 trot;
-  dRSetIdentity(trot);
-  int triCount = dGeomTriMeshGetTriangleCount(geom);
-  for(int i = 0; i < triCount; ++i){
-    dVector3 v0, v1, v2;
-    dGeomTriMeshGetTriangle(geom, i, &v0, &v1, &v2); // already transformed
-    dsDrawTriangleD(tpos, trot, v0, v1, v2, ws);
-  }
-}
-
 void DrawConvexObject(dGeomID geom, convexfvp *fvp, const dReal *colour)
 {
   dsSetColor(colour[0], colour[1], colour[2]);
