@@ -75,7 +75,7 @@ dVector4 palette[] = {
   {0.8, 0.4, 0.4, 1.0}, // apple
   {0.4, 0.4, 0.8, 1.0}, // ball
   {0.4, 0.8, 0.4, 1.0}, // roll
-  {1.0, 1.0, 1.0, 1.0}, // geomSlope
+  {1.0, 0.8, 0.2, 0.6}, // geomSlope
   {0.8, 0.6, 0.2, 1.0}, // geomTmTetra
   {0.4, 0.8, 0.4, 1.0}, // geomTetra
   {0.6, 0.8, 0.2, 1.0}, // geomTmCube
@@ -86,7 +86,7 @@ dVector4 palette[] = {
   {0.8, 0.4, 0.8, 1.0}, // geomBunny
   {0.6, 0.2, 0.8, 1.0}, // geomTmCustom
   {0.2, 0.6, 0.8, 1.0}, // geomCustom
-  {1.0, 1.0, 1.0, 1.0} // geomPlane
+  {1.0, 1.0, 1.0, 0.6} // geomPlane
 };
 
 void DestroyObject(dBodyID body);
@@ -331,7 +331,11 @@ void DrawGeom(dGeomID geom, const dReal *pos, const dReal *rot,
   if(!geom) return;
   if(!pos) pos = dGeomGetPosition(geom);
   if(!rot) rot = dGeomGetRotation(geom);
+#if 0
   if(colour) dsSetColor(colour[0], colour[1], colour[2]);
+#else
+  if(colour) dsSetColorAlpha(colour[0], colour[1], colour[2], colour[3]);
+#endif
   int clsID = dGeomGetClass(geom);
   switch(clsID){
   case dSphereClass: { // 0
