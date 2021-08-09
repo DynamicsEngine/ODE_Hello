@@ -28,15 +28,15 @@ dGeomID MapGeomColour(dGeomID geom, const dReal *colour)
   return geom;
 }
 
-dBodyID MapBody(const char *name, dBodyID body)
+dBodyID MapBody(const char *key, dBodyID body)
 {
-  geom_body_manager.insert(make_pair(name, body));
+  if(key) geom_body_manager.insert(make_pair(key, body));
   return body;
 }
 
-dBodyID FindBody(const char *name)
+dBodyID FindBody(const char *key)
 {
-  return geom_body_manager[name];
+  return geom_body_manager[key];
 }
 
 void DestroyObject(dBodyID body)

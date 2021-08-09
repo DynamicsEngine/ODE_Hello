@@ -37,11 +37,11 @@ struct metaconvex {
 // extern trimeshvi *CreateTrimeshTemplate(trimeshvi *tmv, , , , );
 extern dGeomID CreateGeomTrimeshFromVI(dSpaceID space, trimeshvi *tmv);
 extern dBodyID CreateTrimeshFromVI(dWorldID world, dSpaceID space,
-  metatrimesh *mt);
+  const char *key, metatrimesh *mt);
 
 // extern convexfvp *CreateConvexTemplate(convexfvp *fvp, , , , , );
 extern dGeomID CreateGeomConvexFromFVP(dSpaceID space, convexfvp *fvp);
 extern dBodyID CreateConvexFromFVP(dWorldID world, dSpaceID space,
-  metaconvex *mc);
+  const char *key, metaconvex *mc);
 
 #endif // __TRIMESHCONVEX_H__

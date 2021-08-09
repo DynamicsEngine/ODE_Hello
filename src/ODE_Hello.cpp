@@ -104,18 +104,18 @@ void setDrawStuff(dsFunctions *fn);
 void CreateObjects(dWorldID world)
 {
 cout << "Sphere red" << endl;
-  dBodyID ba = MapBody("apple", CreateSphere(world, space, &apple));
+  dBodyID ba = CreateSphere(world, space, "apple", &apple);
   dBodySetPosition(ba, -0.15, 0.31, 2.5); // x, y on the bunny
   dBodyDisable(ba);
 cout << "Sphere blue" << endl;
-  dBodyID bb = MapBody("ball", CreateSphere(world, space, &ball));
+  dBodyID bb = CreateSphere(world, space, "ball", &ball);
   dBodySetPosition(bb, 0.5, 0.0, ball.r);
 cout << "Sphere green" << endl;
-  dBodyID br = MapBody("roll", CreateSphere(world, space, &roll));
+  dBodyID br = CreateSphere(world, space, "roll", &roll);
   dBodySetPosition(br, -12.0, 0.0, 1.2); // on the slope
 
 cout << "Slope" << endl;
-  dBodyID s = MapBody("slope", CreateComposite(world, space, &slope));
+  dBodyID s = CreateComposite(world, space, "slope", &slope);
   dBodySetPosition(s, -13.5, 0.0, 1.2);
   if(1){
     dQuaternion o, p, q;
@@ -128,17 +128,17 @@ cout << "Slope" << endl;
 
 cout << "TmTetra" << endl;
   metatrimesh mttetra = {DENSITY, &tmvTetra, palette[4]};
-  dBodyID t = MapBody("tmtetra", CreateTrimeshFromVI(world, space, &mttetra));
+  dBodyID t = CreateTrimeshFromVI(world, space, "tmtetra", &mttetra);
   dBodySetPosition(t, 0.0, -1.5, 0.5);
   dBodyEnable(t); // dBodyDisable(t);
 cout << "Tetra" << endl;
   metaconvex mctetra = {DENSITY, &fvpTetra, palette[5]};
-  dBodyID b = MapBody("tetra", CreateConvexFromFVP(world, space, &mctetra));
+  dBodyID b = CreateConvexFromFVP(world, space, "tetra", &mctetra);
   dBodySetPosition(b, 0.0, 1.5, 0.5);
   dBodyEnable(b);
 cout << "TmCube" << endl;
   metatrimesh mtcube = {DENSITY, &tmvCube, palette[6]};
-  dBodyID e = MapBody("tmcube", CreateTrimeshFromVI(world, space, &mtcube));
+  dBodyID e = CreateTrimeshFromVI(world, space, "tmcube", &mtcube);
   dBodySetPosition(e, -1.5, -3.0, 0.5);
   if(1){
     dQuaternion q;
@@ -148,7 +148,7 @@ cout << "TmCube" << endl;
   dBodyEnable(e);
 cout << "Cube" << endl;
   metaconvex mccube = {DENSITY, &fvpCube, palette[7]};
-  dBodyID c = MapBody("cube", CreateConvexFromFVP(world, space, &mccube));
+  dBodyID c = CreateConvexFromFVP(world, space, "cube", &mccube);
   dBodySetPosition(c, -1.5, -1.5, 0.5);
   if(1){
     dQuaternion q;
@@ -158,17 +158,17 @@ cout << "Cube" << endl;
   dBodyEnable(c);
 cout << "TmIcosahedron" << endl;
   metatrimesh mticosahedron = {DENSITY, &tmvIcosahedron, palette[8]};
-  dBodyID h = MapBody("tmicosahedron", CreateTrimeshFromVI(world, space, &mticosahedron));
+  dBodyID h = CreateTrimeshFromVI(world, space, "tmicosahedron", &mticosahedron);
   dBodySetPosition(h, -1.5, 3.0, 0.5);
   dBodyEnable(h);
 cout << "Icosahedron" << endl;
   metaconvex mcicosahedron = {DENSITY, &fvpIcosahedron, palette[9]};
-  dBodyID i = MapBody("icosahedron", CreateConvexFromFVP(world, space, &mcicosahedron));
+  dBodyID i = CreateConvexFromFVP(world, space, "icosahedron", &mcicosahedron);
   dBodySetPosition(i, -1.5, 1.5, 0.5);
   dBodyEnable(i);
 cout << "TmBunny" << endl;
   metatrimesh mtbunny = {DENSITY, &tmvBunny, palette[10]};
-  dBodyID m = MapBody("tmbunny", CreateTrimeshFromVI(world, space, &mtbunny));
+  dBodyID m = CreateTrimeshFromVI(world, space, "tmbunny", &mtbunny);
   dBodySetPosition(m, 0.0, 0.25, 0.88); // to (-0.109884, 0.304591, 1.217693)
   dQuaternion q;
   dQSetIdentity(q);
@@ -194,23 +194,23 @@ cout << "TmBunny" << endl;
   dBodyEnable(m); // dBodyDisable(m);
 cout << "Bunny" << endl;
   metaconvex mcbunny = {DENSITY, &fvpBunny, palette[11]};
-  dBodyID r = MapBody("bunny", CreateConvexFromFVP(world, space, &mcbunny));
+  dBodyID r = CreateConvexFromFVP(world, space, "bunny", &mcbunny);
   dBodySetPosition(r, -3.0, -1.5, 2.0);
   dBodyEnable(r);
 cout << "TmCustom" << endl;
   metatrimesh mtcustom = {DENSITY, &tmvCustom, palette[12]};
-  dBodyID d = MapBody("tmcustom", CreateTrimeshFromVI(world, space, &mtcustom));
+  dBodyID d = CreateTrimeshFromVI(world, space, "tmcustom", &mtcustom);
   dBodySetPosition(d, -3.0, 3.0, 0.5);
   dBodyEnable(d);
 cout << "Custom" << endl;
   metaconvex mccustom = {DENSITY, &fvpCustom, palette[13]};
-  dBodyID o = MapBody("custom", CreateConvexFromFVP(world, space, &mccustom));
+  dBodyID o = CreateConvexFromFVP(world, space, "custom", &mccustom);
   dBodySetPosition(o, -3.0, 1.5, 0.5);
   dBodyEnable(o);
 cout << "Plane" << endl;
   if(1){
     metaplane plane = {{0, 0, 1, 0}, {10.0, 10.0, 0.05}, DENSITY, palette[14]};
-    dBodyID p = MapBody("plane", CreatePlane(world, space, &plane));
+    dBodyID p = CreatePlane(world, space, "plane", &plane);
     dBodySetPosition(p, 0.0, 0.0, 0.05);
     dMatrix3 rot;
     dRSetIdentity(rot);

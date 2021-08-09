@@ -29,9 +29,11 @@ struct metacomposite {
 };
 
 extern dBodyID CreateComposite(dWorldID world, dSpaceID space,
-  metacomposite *mc);
+  const char *key, metacomposite *mc);
 
-extern dBodyID CreateSphere(dWorldID world, dSpaceID space, metasphere *s);
-extern dBodyID CreatePlane(dWorldID world, dSpaceID space, metaplane *p);
+extern dBodyID CreateSphere(dWorldID world, dSpaceID space,
+  const char *key, metasphere *s);
+extern dBodyID CreatePlane(dWorldID world, dSpaceID space,
+  const char *key, metaplane *p);
 
 #endif // __GENCOMPOSITE_H__

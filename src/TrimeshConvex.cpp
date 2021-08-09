@@ -28,7 +28,7 @@ dGeomID CreateGeomTrimeshFromVI(dSpaceID space, trimeshvi *tmv)
 }
 
 dBodyID CreateTrimeshFromVI(dWorldID world, dSpaceID space,
-  metatrimesh *mt)
+  const char *key, metatrimesh *mt)
 {
   dGeomID geom = CreateGeomTrimeshFromVI(space, mt->tmv);
   dMass mass;
@@ -37,12 +37,12 @@ dBodyID CreateTrimeshFromVI(dWorldID world, dSpaceID space,
   // dMassSetTrimeshTotal(&mass, weight, geom); // mass at .25 .25 .25
 //printf("mass at %f %f %f\n", mass.c[0], mass.c[1], mass.c[2]);
   dGeomSetPosition(geom, -mass.c[0], -mass.c[1], -mass.c[2]);
-  // dMassTranslate(&mass, -mass.c[0], -mass.c[1], -mass.c[2]);
+  dMassTranslate(&mass, -mass.c[0], -mass.c[1], -mass.c[2]);
   dBodyID b = dBodyCreate(world);
   dBodySetMass(b, &mass);
   dGeomSetBody(geom, b);
   MapGeomColour(geom, mt->colour);
-  return b;
+  return MapBody(key, b);
 }
 
 // convexfvp *CreateConvexTemplate(convexfvp *fvp, , , , , )
@@ -56,7 +56,7 @@ dGeomID CreateGeomConvexFromFVP(dSpaceID space, convexfvp *fvp)
 }
 
 dBodyID CreateConvexFromFVP(dWorldID world, dSpaceID space,
-  metaconvex *mc)
+  const char *key, metaconvex *mc)
 {
   dGeomID geom = CreateGeomConvexFromFVP(space, mc->fvp);
   dMass mass;
@@ -64,9 +64,11 @@ dBodyID CreateConvexFromFVP(dWorldID world, dSpaceID space,
   //dMassSetSphereTotal(&mass, weight, radius); // (must convert to trimesh)
   dMassSetSphere(&mass, mc->density, 0.5); // (must convert to trimesh)
   //dMassSetBox(&mass, mc->density, 0.25, 0.25, 0.25); // (must convert to trimesh)
+  dGeomSetPosition(geom, -mass.c[0], -mass.c[1], -mass.c[2]);
+  dMassTranslate(&mass, -mass.c[0], -mass.c[1], -mass.c[2]);
   dBodyID b = dBodyCreate(world);
   dBodySetMass(b, &mass);
   dGeomSetBody(geom, b);
   MapGeomColour(geom, mc->colour);
-  return b;
+  return MapBody(key, b);
 }
