@@ -84,6 +84,7 @@
 			<Option compilerVar="WINDRES" />
 		</Unit>
 		<Unit filename="src/ODE_Hello.cpp" />
+		<Unit filename="src/GenComposite.cpp" />
 		<Unit filename="src/TrimeshConvex.cpp" />
 		<Unit filename="src/TrimeshConvexTetra.cpp" />
 		<Unit filename="src/TrimeshConvexCube.cpp" />
@@ -91,6 +92,7 @@
 		<Unit filename="src/TrimeshConvexBunny.cpp" />
 		<Unit filename="src/TrimeshConvexCustom.cpp" />
 		<Unit filename="include/TrimeshConvex.h" />
+		<Unit filename="include/GenComposite.h" />
 		<Extensions>
 			<lib_finder disable_auto="1" />
 		</Extensions>

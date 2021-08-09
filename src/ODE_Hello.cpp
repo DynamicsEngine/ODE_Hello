@@ -6,13 +6,14 @@
   *** IME setting - use old IME ***
 */
 
-#include <iostream>
-#include <map>
-
 #include <ode/ode.h>
 #include <drawstuff/drawstuff.h>
 
 #include <trimeshconvex.h>
+#include <gencomposite.h>
+
+#include <iostream>
+#include <map>
 
 using namespace std;
 
@@ -57,9 +58,12 @@ extern convexfvp fvpCustom; // now tetra
 map<dGeomID, convexfvp *> geom_convex_manager;
 map<const char *, pair<dBodyID, const dReal *> > geom_body_manager;
 
-const dReal slopeSz[] = {8.0, 0.1, 2.0};
-const dReal slopeLR[] = {2.0, 1.0};
-const dReal slopeO[][3] = {{0.0, 0.0, 0.0}, {-3.0, 0.0, 0.0}}; // offset
+int slopeC[] = {dBoxClass, dCylinderClass};
+dReal slopeD[] = {DENSITY, DENSITY};
+dReal slopeO[][3] = {{0.0, 0.0, 0.0}, {-3.0, 0.0, 0.0}}; // offset
+dReal slopeP[][4] = {{8.0, 0.1, 2.0}, {1.0, 2.0}}; // lxyz, RL
+dQuaternion slopeQ[] = {{}, {}};
+metacomposite slope = {A_SIZE(slopeC), slopeC, slopeD, slopeO, slopeP, slopeQ};
 
 struct sphere {
   dBodyID body;
@@ -69,7 +73,7 @@ struct sphere {
   dReal gBounce;
 };
 
-struct sphere apple, ball, roll;
+sphere apple, ball, roll;
 
 dVector4 palette[] = {
   {0.8, 0.4, 0.4, 1.0}, // apple
@@ -94,10 +98,10 @@ void DestroyObjects();
 void CreateObjects(dWorldID world);
 void DrawObjects();
 void DrawGeom(dGeomID geom, const dReal *pos, const dReal *rot,
-  const dReal *colour, int ws);
+  const dReal *colour, int ws); // dVector3, dMatrix3, dVector4
 
-void CreateSphere(struct sphere *s,
-  dWorldID world, dReal r, dReal m, dReal bounce, const dReal *colour);
+void CreateSphere(sphere *s, dWorldID world, dSpaceID space,
+  dReal r, dReal m, dReal bounce, const dReal *colour);
 
 dReal getgBounce(dGeomID id);
 void nearCallback(void *data, dGeomID o1, dGeomID o2);
@@ -133,63 +137,21 @@ void DestroyObjects()
 void CreateObjects(dWorldID world)
 {
 cout << "Sphere red" << endl;
-  CreateSphere(&apple, world, 0.2, 1.0, 1.0, palette[0]);
+  CreateSphere(&apple, world, space, 0.2, 1.0, 1.0, palette[0]);
   dBodySetPosition(apple.body, -0.15, 0.31, 2.5); // x, y on the bunny
   dBodyDisable(apple.body);
   geom_body_manager.insert(make_pair("apple", make_pair(apple.body, apple.colour)));
 cout << "Sphere blue" << endl;
-  CreateSphere(&ball, world, 0.1, 1.0, 0.5, palette[1]);
+  CreateSphere(&ball, world, space, 0.1, 1.0, 0.5, palette[1]);
   dBodySetPosition(ball.body, 0.5, 0.0, ball.r);
   geom_body_manager.insert(make_pair("ball", make_pair(ball.body, ball.colour)));
 cout << "Sphere green" << endl;
-  CreateSphere(&roll, world, 0.2, 1.0, 0.8, palette[2]);
+  CreateSphere(&roll, world, space, 0.2, 1.0, 0.8, palette[2]);
   dBodySetPosition(roll.body, -12.0, 0.0, 1.2); // on the slope
   geom_body_manager.insert(make_pair("roll", make_pair(roll.body, roll.colour)));
 
 cout << "Slope" << endl;
-  map<dGeomID, pair<dGeomID, const dReal *> > gts; // <trans, <sub, offset> >
-  gts.clear();
-  dBodyID s = dBodyCreate(world);
-  dMass mass;
-  dMassSetZero(&mass);
-  for(int j = 0; j < A_SIZE(slopeO); ++j){
-    dMass subm;
-    dMassSetZero(&subm);
-    dGeomID gsub = NULL, gtrans = dCreateGeomTransform(space);
-    dGeomTransformSetCleanup(gtrans, 1);
-    switch(j){
-    case 0:
-      gsub = dCreateBox(0, slopeSz[0], slopeSz[1], slopeSz[2]);
-      dMassSetBox(&subm, DENSITY, slopeSz[0], slopeSz[1], slopeSz[2]);
-      //dMassSetBoxTotal(&subm, subweight, slopeSz[0], slopeSz[1], slopeSz[2]);
-      break;
-    case 1:
-      gsub = dCreateCylinder(0, slopeLR[1], slopeLR[0]);
-      dMassSetCylinder(&subm, DENSITY, 3, slopeLR[1], slopeLR[0]); // 123: xyz
-      break;
-    }
-    dGeomTransformSetGeom(gtrans, gsub);
-    const dReal *o = slopeO[j];
-    gts.insert(make_pair(gtrans, make_pair(gsub, o)));
-    dGeomSetPosition(gsub, o[0], o[1], o[2]);
-    dMassTranslate(&subm, o[0], o[1], o[2]);
-    dQuaternion q;
-    dQSetIdentity(q); // dQFromAxisAndAngle(q, , , , M_PI / 2);
-    dGeomSetQuaternion(gsub, q);
-    dMatrix3 rot;
-    dRfromQ(rot, q);
-    dMassRotate(&subm, rot);
-    dMassAdd(&mass, &subm);
-  } // CG != (0, 0, 0)
-  for(auto it = gts.begin(); it != gts.end(); ++it){
-    dGeomID gsub = it->second.first;
-    const dReal *o = it->second.second;
-    dGeomSetPosition(gsub, o[0]-mass.c[0], o[1]-mass.c[1], o[2]-mass.c[2]);
-  }
-  dMassTranslate(&mass, -mass.c[0], -mass.c[1], -mass.c[2]);
-  dBodySetMass(s, &mass); // CG == (0, 0, 0)
-  for(auto it = gts.begin(); it != gts.end(); ++it) dGeomSetBody(it->first, s);
-  gts.clear();
+  dBodyID s = CreateComposite(world, space, &slope);
   dBodySetPosition(s, -13.5, 0.0, 1.2);
   if(1){
     dQuaternion o, p, q;
@@ -403,8 +365,8 @@ void DrawGeom(dGeomID geom, const dReal *pos, const dReal *rot,
   }
 }
 
-void CreateSphere(struct sphere *s,
-  dWorldID world, dReal r, dReal m, dReal bounce, const dReal *colour)
+void CreateSphere(sphere *s, dWorldID world, dSpaceID space,
+  dReal r, dReal m, dReal bounce, const dReal *colour)
 {
   s->body = dBodyCreate(world);
   s->r = r, s->m = m;
