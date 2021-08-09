@@ -6,6 +6,7 @@
 #include <drawstuff/drawstuff.h>
 
 #include <trimeshconvex.h>
+#include <geommanager.h>
 #include <gencomposite.h>
 
 #include <iostream>
@@ -46,12 +47,27 @@ dBodyID CreateComposite(dWorldID world, dSpaceID space,
       gsub = dCreateCylinder(0, param[0], param[1]);
       dMassSetCylinder(&subm, dm, 3, param[0], param[1]); // 123: xyz
     } break;
+    case dPlaneClass: {
+      gsub = dCreatePlane(0, param[0], param[1], param[2], param[3]);
+      dMassSetBox(&subm, dm, 10.0, 10.0, 0.05); // ***
+    } break;
+    case dConvexClass: {
+      gsub = CreateGeomConvexFromFVP(0, (convexfvp *)mc->v[j]);
+      dMassSetSphere(&subm, dm, 0.5); // ***
+    } break;
+    case dTriMeshClass: {
+      gsub = CreateGeomTrimeshFromVI(0, (trimeshvi *)mc->v[j]);
+      dMassSetTrimesh(&subm, dm, gsub); // ***
+      // dGeomSetPosition(gsub, -subm.c[0], -subm.c[1], -subm.c[2]); // ***
+    } break;
     default:
       printf("not implemented type dGeomGetClass() in CreateComposite\n");
       printf(" geomID: %p, classID: %d\n", gtrans, mc->clsID[j]);
       break;
     }
     dGeomTransformSetGeom(gtrans, gsub);
+    // MapGeomColour(gtrans, mc->colour[j]); // trans will not be shown
+    MapGeomColour(gsub, mc->colour[j]);
     dReal *o = mc->offset[j];
     gts.insert(make_pair(gtrans, make_pair(gsub, o)));
     dGeomSetPosition(gsub, o[0], o[1], o[2]);
@@ -73,5 +89,31 @@ dBodyID CreateComposite(dWorldID world, dSpaceID space,
   dBodySetMass(b, &mass); // CG == (0, 0, 0)
   for(auto it = gts.begin(); it != gts.end(); ++it) dGeomSetBody(it->first, b);
   gts.clear();
+  return b;
+}
+
+dBodyID CreateSphere(dWorldID world, dSpaceID space, metasphere *s)
+{
+  dBodyID b = dBodyCreate(world);
+  dMass mass;
+  dMassSetZero(&mass);
+  dMassSetSphereTotal(&mass, s->m, s->r);
+  dBodySetMass(b, &mass);
+  dGeomID geom = dCreateSphere(space, s->r);
+  dGeomSetBody(geom, b);
+  MapGeomColour(geom, s->colour);
+  return b;
+}
+
+dBodyID CreatePlane(dWorldID world, dSpaceID space, metaplane *p)
+{
+  dBodyID b = dBodyCreate(world);
+  dMass mass;
+  dMassSetZero(&mass);
+  dMassSetBox(&mass, p->dm, p->lxyz[0], p->lxyz[1], p->lxyz[2]);
+  dBodySetMass(b, &mass);
+  dGeomID geom = dCreatePlane(space, p->v[0], p->v[1], p->v[2], p->v[3]);
+  dGeomSetBody(geom, b);
+  MapGeomColour(geom, p->colour);
   return b;
 }

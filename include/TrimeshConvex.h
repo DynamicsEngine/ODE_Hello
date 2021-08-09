@@ -22,12 +22,26 @@ struct convexfvp {
   unsigned int *polygons;
 };
 
+struct metatrimesh {
+  dReal density;
+  trimeshvi *tmv;
+  dReal *colour;
+};
+
+struct metaconvex {
+  dReal density;
+  convexfvp *fvp;
+  dReal *colour;
+};
+
 // extern trimeshvi *CreateTrimeshTemplate(trimeshvi *tmv, , , , );
-extern dGeomID CreateTrimeshFromVI(dWorldID world, dSpaceID space,
-  dReal density, trimeshvi *tmv);
+extern dGeomID CreateGeomTrimeshFromVI(dSpaceID space, trimeshvi *tmv);
+extern dBodyID CreateTrimeshFromVI(dWorldID world, dSpaceID space,
+  metatrimesh *mt);
 
 // extern convexfvp *CreateConvexTemplate(convexfvp *fvp, , , , , );
-extern dGeomID CreateConvexFromFVP(dWorldID world, dSpaceID space,
-  dReal density, convexfvp *fvp);
+extern dGeomID CreateGeomConvexFromFVP(dSpaceID space, convexfvp *fvp);
+extern dBodyID CreateConvexFromFVP(dWorldID world, dSpaceID space,
+  metaconvex *mc);
 
 #endif // __TRIMESHCONVEX_H__

@@ -10,6 +10,7 @@
 #include <drawstuff/drawstuff.h>
 
 #include <trimeshconvex.h>
+#include <geommanager.h>
 #include <gencomposite.h>
 
 #include <iostream>
@@ -55,26 +56,6 @@ extern convexfvp fvpBunny; // body drawing by fvpBunny causes rocky
 extern trimeshvi tmvCustom; // now tetra
 extern convexfvp fvpCustom; // now tetra
 
-map<dGeomID, convexfvp *> geom_convex_manager;
-map<const char *, pair<dBodyID, const dReal *> > geom_body_manager;
-
-int slopeC[] = {dBoxClass, dCylinderClass};
-dReal slopeD[] = {DENSITY, DENSITY};
-dReal slopeO[][3] = {{0.0, 0.0, 0.0}, {-3.0, 0.0, 0.0}}; // offset
-dReal slopeP[][4] = {{8.0, 0.1, 2.0}, {1.0, 2.0}}; // lxyz, RL
-dQuaternion slopeQ[] = {{}, {}};
-metacomposite slope = {A_SIZE(slopeC), slopeC, slopeD, slopeO, slopeP, slopeQ};
-
-struct sphere {
-  dBodyID body;
-  dGeomID geom;
-  dReal r, m;
-  dVector4 colour;
-  dReal gBounce;
-};
-
-sphere apple, ball, roll;
-
 dVector4 palette[] = {
   {0.8, 0.4, 0.4, 1.0}, // apple
   {0.4, 0.4, 0.8, 1.0}, // ball
@@ -90,18 +71,24 @@ dVector4 palette[] = {
   {0.8, 0.4, 0.8, 1.0}, // geomBunny
   {0.6, 0.2, 0.8, 1.0}, // geomTmCustom
   {0.2, 0.6, 0.8, 1.0}, // geomCustom
-  {1.0, 1.0, 1.0, 0.6} // geomPlane
+  {0.2, 1.0, 0.8, 0.4} // geomPlane
 };
 
-void DestroyObject(dBodyID body);
-void DestroyObjects();
-void CreateObjects(dWorldID world);
-void DrawObjects();
-void DrawGeom(dGeomID geom, const dReal *pos, const dReal *rot,
-  const dReal *colour, int ws); // dVector3, dMatrix3, dVector4
+int slopeC[] = {dBoxClass, dCylinderClass};
+dReal slopeD[] = {DENSITY, DENSITY};
+dReal slopeO[][3] = {{0.0, 0.0, 0.0}, {-3.0, 0.0, 0.0}}; // offset
+dReal slopeP[][4] = {{8.0, 0.1, 2.0}, {1.0, 2.0}}; // lxyz, RL
+dQuaternion slopeQ[] = {{}, {}};
+void *slopeV[] = {NULL, NULL};
+dReal *slopeA[] = {palette[3], palette[14]};
+metacomposite slope = {
+  A_SIZE(slopeC), slopeC, slopeD, slopeO, slopeP, slopeQ, slopeV, slopeA};
 
-void CreateSphere(sphere *s, dWorldID world, dSpaceID space,
-  dReal r, dReal m, dReal bounce, const dReal *colour);
+metasphere apple = {0.2, 1.0, 1.0, palette[0]};
+metasphere ball = {0.1, 1.0, 0.5, palette[1]};
+metasphere roll = {0.2, 1.0, 0.8, palette[2]};
+
+void CreateObjects(dWorldID world);
 
 dReal getgBounce(dGeomID id);
 void nearCallback(void *data, dGeomID o1, dGeomID o2);
@@ -114,44 +101,21 @@ void simLoop(int pause);
 void drawStuffStart();
 void setDrawStuff(dsFunctions *fn);
 
-void DestroyObject(dBodyID body)
-{
-  dGeomID geom = dBodyGetFirstGeom(body);
-  while(geom){
-    dGeomID nextgeom = dBodyGetNextGeom(geom);
-    dGeomDestroy(geom);
-    geom = nextgeom;
-  }
-  dBodyDestroy(body);
-}
-
-void DestroyObjects()
-{
-  for(auto it = geom_body_manager.begin(); it != geom_body_manager.end(); ++it)
-    DestroyObject(it->second.first);
-
-  geom_convex_manager.clear();
-  geom_body_manager.clear();
-}
-
 void CreateObjects(dWorldID world)
 {
 cout << "Sphere red" << endl;
-  CreateSphere(&apple, world, space, 0.2, 1.0, 1.0, palette[0]);
-  dBodySetPosition(apple.body, -0.15, 0.31, 2.5); // x, y on the bunny
-  dBodyDisable(apple.body);
-  geom_body_manager.insert(make_pair("apple", make_pair(apple.body, apple.colour)));
+  dBodyID ba = MapBody("apple", CreateSphere(world, space, &apple));
+  dBodySetPosition(ba, -0.15, 0.31, 2.5); // x, y on the bunny
+  dBodyDisable(ba);
 cout << "Sphere blue" << endl;
-  CreateSphere(&ball, world, space, 0.1, 1.0, 0.5, palette[1]);
-  dBodySetPosition(ball.body, 0.5, 0.0, ball.r);
-  geom_body_manager.insert(make_pair("ball", make_pair(ball.body, ball.colour)));
+  dBodyID bb = MapBody("ball", CreateSphere(world, space, &ball));
+  dBodySetPosition(bb, 0.5, 0.0, ball.r);
 cout << "Sphere green" << endl;
-  CreateSphere(&roll, world, space, 0.2, 1.0, 0.8, palette[2]);
-  dBodySetPosition(roll.body, -12.0, 0.0, 1.2); // on the slope
-  geom_body_manager.insert(make_pair("roll", make_pair(roll.body, roll.colour)));
+  dBodyID br = MapBody("roll", CreateSphere(world, space, &roll));
+  dBodySetPosition(br, -12.0, 0.0, 1.2); // on the slope
 
 cout << "Slope" << endl;
-  dBodyID s = CreateComposite(world, space, &slope);
+  dBodyID s = MapBody("slope", CreateComposite(world, space, &slope));
   dBodySetPosition(s, -13.5, 0.0, 1.2);
   if(1){
     dQuaternion o, p, q;
@@ -161,24 +125,20 @@ cout << "Slope" << endl;
     dBodySetQuaternion(s, o);
   }
   dBodyEnable(s); // dBodyDisable(s);
-  geom_body_manager.insert(make_pair("slope", make_pair(s, palette[3])));
 
 cout << "TmTetra" << endl;
-  dGeomID geomTmTetra = CreateTrimeshFromVI(world, space, DENSITY, &tmvTetra);
-  dBodyID t = dGeomGetBody(geomTmTetra);
+  metatrimesh mttetra = {DENSITY, &tmvTetra, palette[4]};
+  dBodyID t = MapBody("tmtetra", CreateTrimeshFromVI(world, space, &mttetra));
   dBodySetPosition(t, 0.0, -1.5, 0.5);
   dBodyEnable(t); // dBodyDisable(t);
-  geom_body_manager.insert(make_pair("tmtetra", make_pair(t, palette[4])));
 cout << "Tetra" << endl;
-  dGeomID geomTetra = CreateConvexFromFVP(world, space, DENSITY, &fvpTetra);
-  geom_convex_manager.insert(make_pair(geomTetra, &fvpTetra));
-  dBodyID b = dGeomGetBody(geomTetra);
+  metaconvex mctetra = {DENSITY, &fvpTetra, palette[5]};
+  dBodyID b = MapBody("tetra", CreateConvexFromFVP(world, space, &mctetra));
   dBodySetPosition(b, 0.0, 1.5, 0.5);
   dBodyEnable(b);
-  geom_body_manager.insert(make_pair("tetra", make_pair(b, palette[5])));
 cout << "TmCube" << endl;
-  dGeomID geomTmCube = CreateTrimeshFromVI(world, space, DENSITY, &tmvCube);
-  dBodyID e = dGeomGetBody(geomTmCube);
+  metatrimesh mtcube = {DENSITY, &tmvCube, palette[6]};
+  dBodyID e = MapBody("tmcube", CreateTrimeshFromVI(world, space, &mtcube));
   dBodySetPosition(e, -1.5, -3.0, 0.5);
   if(1){
     dQuaternion q;
@@ -186,11 +146,9 @@ cout << "TmCube" << endl;
     dBodySetQuaternion(e, q);
   }
   dBodyEnable(e);
-  geom_body_manager.insert(make_pair("tmcube", make_pair(e, palette[6])));
 cout << "Cube" << endl;
-  dGeomID geomCube = CreateConvexFromFVP(world, space, DENSITY, &fvpCube);
-  geom_convex_manager.insert(make_pair(geomCube, &fvpCube));
-  dBodyID c = dGeomGetBody(geomCube);
+  metaconvex mccube = {DENSITY, &fvpCube, palette[7]};
+  dBodyID c = MapBody("cube", CreateConvexFromFVP(world, space, &mccube));
   dBodySetPosition(c, -1.5, -1.5, 0.5);
   if(1){
     dQuaternion q;
@@ -198,23 +156,19 @@ cout << "Cube" << endl;
     dBodySetQuaternion(c, q);
   }
   dBodyEnable(c);
-  geom_body_manager.insert(make_pair("cube", make_pair(c, palette[7])));
 cout << "TmIcosahedron" << endl;
-  dGeomID geomTmIcosahedron = CreateTrimeshFromVI(world, space, DENSITY, &tmvIcosahedron);
-  dBodyID h = dGeomGetBody(geomTmIcosahedron);
+  metatrimesh mticosahedron = {DENSITY, &tmvIcosahedron, palette[8]};
+  dBodyID h = MapBody("tmicosahedron", CreateTrimeshFromVI(world, space, &mticosahedron));
   dBodySetPosition(h, -1.5, 3.0, 0.5);
   dBodyEnable(h);
-  geom_body_manager.insert(make_pair("tmicosahedron", make_pair(h, palette[8])));
 cout << "Icosahedron" << endl;
-  dGeomID geomIcosahedron = CreateConvexFromFVP(world, space, DENSITY, &fvpIcosahedron);
-  geom_convex_manager.insert(make_pair(geomIcosahedron, &fvpIcosahedron));
-  dBodyID i = dGeomGetBody(geomIcosahedron);
+  metaconvex mcicosahedron = {DENSITY, &fvpIcosahedron, palette[9]};
+  dBodyID i = MapBody("icosahedron", CreateConvexFromFVP(world, space, &mcicosahedron));
   dBodySetPosition(i, -1.5, 1.5, 0.5);
   dBodyEnable(i);
-  geom_body_manager.insert(make_pair("icosahedron", make_pair(i, palette[9])));
 cout << "TmBunny" << endl;
-  dGeomID geomTmBunny = CreateTrimeshFromVI(world, space, DENSITY, &tmvBunny);
-  dBodyID m = dGeomGetBody(geomTmBunny);
+  metatrimesh mtbunny = {DENSITY, &tmvBunny, palette[10]};
+  dBodyID m = MapBody("tmbunny", CreateTrimeshFromVI(world, space, &mtbunny));
   dBodySetPosition(m, 0.0, 0.25, 0.88); // to (-0.109884, 0.304591, 1.217693)
   dQuaternion q;
   dQSetIdentity(q);
@@ -238,152 +192,38 @@ cout << "TmBunny" << endl;
   dBodySetQuaternion(m, q);
 #endif
   dBodyEnable(m); // dBodyDisable(m);
-  geom_body_manager.insert(make_pair("tmbunny", make_pair(m, palette[10])));
 cout << "Bunny" << endl;
-  dGeomID geomBunny = CreateConvexFromFVP(world, space, DENSITY, &fvpBunny);
-  geom_convex_manager.insert(make_pair(geomBunny, &fvpBunny));
-  dBodyID r = dGeomGetBody(geomBunny);
+  metaconvex mcbunny = {DENSITY, &fvpBunny, palette[11]};
+  dBodyID r = MapBody("bunny", CreateConvexFromFVP(world, space, &mcbunny));
   dBodySetPosition(r, -3.0, -1.5, 2.0);
   dBodyEnable(r);
-  geom_body_manager.insert(make_pair("bunny", make_pair(r, palette[11])));
 cout << "TmCustom" << endl;
-  dGeomID geomTmCustom = CreateTrimeshFromVI(world, space, DENSITY, &tmvCustom);
-  dBodyID d = dGeomGetBody(geomTmCustom);
+  metatrimesh mtcustom = {DENSITY, &tmvCustom, palette[12]};
+  dBodyID d = MapBody("tmcustom", CreateTrimeshFromVI(world, space, &mtcustom));
   dBodySetPosition(d, -3.0, 3.0, 0.5);
   dBodyEnable(d);
-  geom_body_manager.insert(make_pair("tmcustom", make_pair(d, palette[12])));
 cout << "Custom" << endl;
-  dGeomID geomCustom = CreateConvexFromFVP(world, space, DENSITY, &fvpCustom);
-  geom_convex_manager.insert(make_pair(geomCustom, &fvpCustom));
-  dBodyID o = dGeomGetBody(geomCustom);
+  metaconvex mccustom = {DENSITY, &fvpCustom, palette[13]};
+  dBodyID o = MapBody("custom", CreateConvexFromFVP(world, space, &mccustom));
   dBodySetPosition(o, -3.0, 1.5, 0.5);
   dBodyEnable(o);
-  geom_body_manager.insert(make_pair("custom", make_pair(o, palette[13])));
 cout << "Plane" << endl;
   if(1){
-    dGeomID geomPlane = dCreatePlane(space, 0, 0, 1, 0);
-    dBodyID p = dBodyCreate(world);
-    dMass mass;
-    dMassSetZero(&mass);
-    dMassSetBoxTotal(&mass, 1.0, 10.0, 10.0, 0.05);
-    dBodySetMass(p, &mass);
-    dGeomSetBody(geomPlane, p);
+    metaplane plane = {{0, 0, 1, 0}, {10.0, 10.0, 0.05}, DENSITY, palette[14]};
+    dBodyID p = MapBody("plane", CreatePlane(world, space, &plane));
     dBodySetPosition(p, 0.0, 0.0, 0.05);
     dMatrix3 rot;
     dRSetIdentity(rot);
     // dRFromAxisAndAngle(rot, 1, 0, 0, M_PI / 2);
     dBodySetRotation(p, rot);
     dBodyEnable(p);
-    geom_body_manager.insert(make_pair("plane", make_pair(p, palette[14])));
   }
-}
-
-void DrawObjects()
-{
-  dsSetTexture(DS_WOOD); // DS_SKY DS_GROUND DS_CHECKERED
-
-  for(auto it = geom_body_manager.begin(); it != geom_body_manager.end(); ++it)
-    for(dGeomID g = dBodyGetFirstGeom(it->second.first); g; g = dBodyGetNextGeom(g))
-      DrawGeom(g, NULL, NULL, it->second.second, wire_solid);
-}
-
-void DrawGeom(dGeomID geom, const dReal *pos, const dReal *rot,
-  const dReal *colour, int ws)
-{
-  if(!geom) return;
-  if(!pos) pos = dGeomGetPosition(geom);
-  if(!rot) rot = dGeomGetRotation(geom);
-#if 0
-  if(colour) dsSetColor(colour[0], colour[1], colour[2]);
-#else
-  if(colour) dsSetColorAlpha(colour[0], colour[1], colour[2], colour[3]);
-#endif
-  int clsID = dGeomGetClass(geom);
-  switch(clsID){
-  case dSphereClass: { // 0
-    dsDrawSphereD(pos, rot, dGeomSphereGetRadius(geom));
-  } break;
-  case dBoxClass: { // 1
-    dVector3 lxyz;
-    dGeomBoxGetLengths(geom, lxyz);
-    dsDrawBoxD(pos, rot, lxyz);
-  } break;
-  case dCylinderClass: { // 3
-    dReal len, radius;
-    dGeomCylinderGetParams(geom, &radius, &len);
-    dsDrawCylinderD(pos, rot, len, radius);
-  } break;
-  case dCapsuleClass: { // 2
-    dReal len, radius;
-    dGeomCapsuleGetParams(geom, &radius, &len);
-    dsDrawCapsuleD(pos, rot, len, radius);
-  } break;
-  case dConvexClass: { // 6
-    convexfvp *fvp = geom_convex_manager[geom];
-    if(!fvp) printf("not managed convex in DrawGeom (geomID: %p)\n", geom);
-    else dsDrawConvexD(pos, rot,
-      fvp->faces, fvp->faceCount, fvp->vtx, fvp->vtxCount, fvp->polygons);
-  } break;
-  case dTriMeshClass: { // 8
-    dVector3 tpos = {0.0, 0.0, 0.0};
-    dMatrix3 trot;
-    dRSetIdentity(trot);
-    int triCount = dGeomTriMeshGetTriangleCount(geom);
-    for(int i = 0; i < triCount; ++i){
-      dVector3 v0, v1, v2;
-      dGeomTriMeshGetTriangle(geom, i, &v0, &v1, &v2); // already transformed
-      dsDrawTriangleD(tpos, trot, v0, v1, v2, ws);
-    }
-  } break;
-  case dGeomTransformClass: { // 7
-    dGeomID gt = dGeomTransformGetGeom(geom);
-    const dReal *gtpos = dGeomGetPosition(gt);
-    const dReal *gtrot = dGeomGetRotation(gt);
-    dVector3 rpos;
-    dMatrix3 rrot;
-    dMULTIPLY0_331(rpos, rot, gtpos);
-    for(int i = 0; i < A_SIZE(rpos); ++i) rpos[i] += pos[i];
-    dMULTIPLY0_333(rrot, rot, gtrot);
-    DrawGeom(gt, rpos, rrot, colour, ws);
-  } break;
-  case dPlaneClass: { // 4
-    dVector4 v;
-    dGeomPlaneGetParams(geom, v);
-    dVector3 lxyz = {10.0, 10.0, 0.05};
-    dsDrawBoxD(pos, rot, lxyz);
-  } break;
-#if 0
-  case dRayClass: { // 5
-  } break;
-  case dHeightfieldClass: { // 9
-  } break;
-#endif
-  default:
-    printf("not implemented type dGeomGetClass() in DrawGeom\n");
-    printf(" geomID: %p, classID: %d\n", geom, clsID);
-    break;
-  }
-}
-
-void CreateSphere(sphere *s, dWorldID world, dSpaceID space,
-  dReal r, dReal m, dReal bounce, const dReal *colour)
-{
-  s->body = dBodyCreate(world);
-  s->r = r, s->m = m;
-  s->gBounce = bounce;
-  for(int i = 0; i < A_SIZE(s->colour); ++i) s->colour[i] = colour[i];
-  dMass mass;
-  dMassSetZero(&mass);
-  dMassSetSphereTotal(&mass, m, r);
-  dBodySetMass(s->body, &mass);
-  s->geom = dCreateSphere(space, r);
-  dGeomSetBody(s->geom, s->body);
 }
 
 dReal getgBounce(dGeomID id)
 {
-  if(id == apple.geom) return apple.gBounce;
-  if(id == ball.geom) return ball.gBounce;
+  if(id == dBodyGetFirstGeom(FindBody("apple"))) return apple.gBounce;
+  if(id == dBodyGetFirstGeom(FindBody("ball"))) return ball.gBounce;
   return 0.9; // 1.0;
 }
 
@@ -441,7 +281,7 @@ void showViewPoint(int save)
 
 void command(int cmd)
 {
-  dBodyID ba = apple.body;
+  dBodyID ba = FindBody("apple");
   const dReal *apos = dBodyGetPosition(ba);
   dReal ax = apos[0], ay = apos[1], az = apos[2];
   switch(cmd){
@@ -461,14 +301,14 @@ void command(int cmd)
     char *torqueX[] = {"apple", "roll",
       "cube", "icosahedron", "custom"};
     for(int i = 0; i < A_SIZE(torqueX); ++i)
-      dBodySetTorque(geom_body_manager[torqueX[i]].first, -0.5, 0.0, 0.0);
+      dBodySetTorque(FindBody(torqueX[i]), -0.5, 0.0, 0.0);
     char *torqueZ[] = {"ball", "tmbunny", "bunny", "tmtetra", "tetra",
       "tmcube", "tmicosahedron", "tmcustom"};
     for(int i = 0; i < A_SIZE(torqueZ); ++i)
-      dBodySetTorque(geom_body_manager[torqueZ[i]].first, 0.0, 0.0, 0.5);
+      dBodySetTorque(FindBody(torqueZ[i]), 0.0, 0.0, 0.5);
   } break;
   case 'o': {
-    dBodyID b = dGeomGetBody(apple.geom);
+    dBodyID b = FindBody("apple");
     const dReal *p = dBodyGetPosition(b);
     printf("sphere red (%f, %f, %f)\n", p[0], p[1], p[2]);
   } break;
@@ -523,7 +363,7 @@ void simLoop(int pause)
     dWorldStep(world, TICK_DELTA);
     dJointGroupEmpty(contactgroup);
   }
-  DrawObjects();
+  DrawObjects(wire_solid);
 }
 
 void drawStuffStart()
