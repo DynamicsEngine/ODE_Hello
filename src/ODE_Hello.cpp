@@ -77,12 +77,22 @@ dVector4 palette[] = {
 int slopeC[] = {dBoxClass, dCylinderClass};
 dReal slopeD[] = {DENSITY, DENSITY};
 dReal slopeO[][3] = {{0.0, 0.0, 0.0}, {-3.0, 0.0, 0.0}}; // offset
-dReal slopeP[][4] = {{8.0, 0.1, 2.0}, {1.0, 2.0}}; // lxyz, RL
+dReal slopeP[][4] = {{6.0, 0.1, 8.0}, {1.0, 2.0}}; // lxyz, RL
 dQuaternion slopeQ[] = {{}, {}};
 void *slopeV[] = {NULL, NULL};
 dReal *slopeA[] = {palette[3], palette[14]};
 metacomposite slope = {
   A_SIZE(slopeC), slopeC, slopeD, slopeO, slopeP, slopeQ, slopeV, slopeA};
+
+int uballC[] = {dSphereClass, dSphereClass};
+dReal uballD[] = {DENSITY, DENSITY};
+dReal uballO[][3] = {{0.0, 0.0, 0.0}, {0.05, 0.0, 0.0}}; // offset
+dReal uballP[][4] = {{0.2}, {0.1}}; // Rout, Rin
+dQuaternion uballQ[] = {{}, {}};
+void *uballV[] = {NULL, NULL};
+dReal *uballA[] = {palette[14], palette[3]};
+metacomposite uball = {
+  A_SIZE(uballC), uballC, uballD, uballO, uballP, uballQ, uballV, uballA};
 
 metasphere apple = {0.2, 1.0, 1.0, palette[0]};
 metasphere ball = {0.1, 1.0, 0.5, palette[1]};
@@ -125,6 +135,31 @@ cout << "Slope" << endl;
     dBodySetQuaternion(s, o);
   }
   dBodyEnable(s); // dBodyDisable(s);
+
+cout << "U ball" << endl;
+  dBodyID u = CreateComposite(world, space, "uball", &uball);
+  dBodySetPosition(u, -12.0, 1.0, 1.2); // on the slope
+  dBodyEnable(u);
+cout << "LU ball" << endl;
+  dBodyID lu = CreateComposite(world, space, "luball", &uball);
+  dBodySetPosition(lu, -12.0, 2.0, 1.2); // on the slope
+  if(1){
+    dQuaternion o, p, q;
+    dQFromAxisAndAngle(q, 0, 0, 1, M_PI / 2);
+    dQMultiply0(o, p, q);
+    dBodySetQuaternion(lu, o);
+  }
+  dBodyEnable(lu);
+cout << "RU ball" << endl;
+  dBodyID ru = CreateComposite(world, space, "ruball", &uball);
+  dBodySetPosition(ru, -12.0, -1.0, 1.2); // on the slope
+  if(1){
+    dQuaternion o, p, q;
+    dQFromAxisAndAngle(q, 0, 0, 1, -M_PI / 2);
+    dQMultiply0(o, p, q);
+    dBodySetQuaternion(ru, o);
+  }
+  dBodyEnable(ru);
 
 cout << "TmTetra" << endl;
   metatrimesh mttetra = {DENSITY, &tmvTetra, palette[4]};
@@ -208,7 +243,7 @@ cout << "Custom" << endl;
   dBodySetPosition(o, -3.0, 1.5, 0.5);
   dBodyEnable(o);
 cout << "Plane" << endl;
-  if(1){
+  if(0){
     metaplane plane = {{0, 0, 1, 0}, {10.0, 10.0, 0.05}, DENSITY, palette[14]};
     dBodyID p = CreatePlane(world, space, "plane", &plane);
     dBodySetPosition(p, 0.0, 0.0, 0.05);
@@ -257,8 +292,8 @@ void nearCallback(void *data, dGeomID o1, dGeomID o2)
       p->surface.bounce_vel = 0.01; // minimum velocity for bounce
       p->surface.mu = 0.5; // or dInfinity
       dJointID c = dJointCreateContact(world, contactgroup, p);
-      dJointAttach(c, dGeomGetBody(p->geom.g1), dGeomGetBody(p->geom.g2));
-      // dJointAttach(c, dGeomGetBody(o1), dGeomGetBody(o2));
+      // dJointAttach(c, dGeomGetBody(p->geom.g1), dGeomGetBody(p->geom.g2));
+      dJointAttach(c, dGeomGetBody(o1), dGeomGetBody(o2));
     }
   }
 }
