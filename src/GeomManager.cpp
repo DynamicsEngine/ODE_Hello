@@ -125,6 +125,7 @@ void DrawGeom(dGeomID geom, const dReal *pos, const dReal *rot, int ws)
     DrawGeom(gt, rpos, rrot, ws);
   } break;
   case dTriMeshClass: { // 8
+    int is_composite = (dGeomGetSpace(geom) == 0);
     dVector3 tpos = {0.0, 0.0, 0.0};
     dMatrix3 trot;
     dRSetIdentity(trot);
@@ -132,7 +133,7 @@ void DrawGeom(dGeomID geom, const dReal *pos, const dReal *rot, int ws)
     for(int i = 0; i < triCount; ++i){
       dVector3 v0, v1, v2;
       dGeomTriMeshGetTriangle(geom, i, &v0, &v1, &v2); // already transformed
-      if(dGeomGetSpace(geom)) dsDrawTriangleD(tpos, trot, v0, v1, v2, ws);
+      if(!is_composite) dsDrawTriangleD(tpos, trot, v0, v1, v2, ws); // top
       else dsDrawTriangleD(pos, rot, v0, v1, v2, ws); // in the dTransformClass
     }
   } break;

@@ -155,7 +155,8 @@ cout << "TmBall" << endl;
   dBodySetPosition(w, -14.0, -3.0, 3.0);
   if(1){
     dQuaternion o, p, q;
-    dQFromAxisAndAngle(q, 1, 0, 0, M_PI / 2);
+    dQFromAxisAndAngle(q, 0, 1, 0, M_PI / 2);
+    dQFromAxisAndAngle(p, 1, 0, 0, M_PI / 2);
     dQMultiply0(o, p, q);
     dBodySetQuaternion(w, o);
   }
@@ -183,6 +184,7 @@ cout << "LU ball" << endl;
   if(1){
     dQuaternion o, p, q;
     dQFromAxisAndAngle(q, 0, 0, 1, M_PI / 2);
+    dQSetIdentity(p);
     dQMultiply0(o, p, q);
     dBodySetQuaternion(lu, o);
   }
@@ -193,6 +195,7 @@ cout << "RU ball" << endl;
   if(1){
     dQuaternion o, p, q;
     dQFromAxisAndAngle(q, 0, 0, 1, -M_PI / 2);
+    dQSetIdentity(p);
     dQMultiply0(o, p, q);
     dBodySetQuaternion(ru, o);
   }
@@ -208,6 +211,7 @@ cout << "LV ball" << endl;
   if(1){
     dQuaternion o, p, q;
     dQFromAxisAndAngle(q, 0, 0, 1, M_PI / 2);
+    dQSetIdentity(p);
     dQMultiply0(o, p, q);
     dBodySetQuaternion(lv, o);
   }
@@ -218,6 +222,7 @@ cout << "RV ball" << endl;
   if(1){
     dQuaternion o, p, q;
     dQFromAxisAndAngle(q, 0, 0, 1, -M_PI / 2);
+    dQSetIdentity(p);
     dQMultiply0(o, p, q);
     dBodySetQuaternion(rv, o);
   }
