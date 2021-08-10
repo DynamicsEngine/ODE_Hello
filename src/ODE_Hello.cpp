@@ -93,6 +93,10 @@ metasphere apple = {0.2, 1.0, 1.0, palette[0]};
 metasphere ball = {0.1, 1.0, 0.5, palette[1]};
 metasphere roll = {0.2, 1.0, 0.8, palette[2]};
 
+metacomposite tmball[] = { // trimesh, Rout
+  {dTriMeshClass, DENSITY, {0, 0, 0}, {}, {}, &tmvBunny, palette[3]},
+  {dSphereClass, DENSITY, {0, 0, 0}, {1.2}, {}, NULL, palette[29]}};
+
 metacomposite slope[] = { // lxyz, RL
   {dBoxClass, DENSITY, {0, 0, 0}, {6.0, 0.1, 8.0}, {}, NULL, palette[3]},
   {dCylinderClass, DENSITY, {-3.0, 0, 0}, {1.0, 2.0}, {}, NULL, palette[29]}};
@@ -145,6 +149,11 @@ cout << "Sphere blue" << endl;
 cout << "Sphere green" << endl;
   dBodyID br = CreateSphere(world, space, "roll", &roll);
   dBodySetPosition(br, -12.0, 0.0, 1.2); // on the slope
+
+cout << "TmBall" << endl;
+  dBodyID w = CreateComposite(world, space, "tmball", tmball, A_SIZE(tmball));
+  dBodySetPosition(w, -4.0, 4.0, 2.0);
+  dBodyEnable(w);
 
 cout << "Slope" << endl;
   dBodyID s = CreateComposite(world, space, "slope", slope, A_SIZE(slope));
