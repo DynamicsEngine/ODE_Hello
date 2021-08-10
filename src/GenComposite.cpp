@@ -11,12 +11,15 @@
 
 #include <iostream>
 #include <map>
+#include <vector>
 
 using namespace std;
 
 dBodyID CreateComposite(dWorldID world, dSpaceID space,
   const char *key, metacomposite *mc, int numcomposite)
 {
+  vector<dGeomID> gto; // to keep order
+  gto.clear();
   map<dGeomID, pair<dGeomID, const dReal *> > gts; // <trans, <sub, offset> >
   gts.clear();
   dBodyID b = dBodyCreate(world);
@@ -72,6 +75,7 @@ dBodyID CreateComposite(dWorldID world, dSpaceID space,
     // MapGeomColour(gtrans, mc[j].colour); // trans will not be shown
     MapGeomColour(gsub, mc[j].colour);
     dReal *o = mc[j].offset;
+    gto.insert(gto.begin(), gtrans); // first <-> last gto.push_back(gtrans);
     gts.insert(make_pair(gtrans, make_pair(gsub, o)));
     dGeomSetPosition(gsub, o[0], o[1], o[2]);
     dMassTranslate(&subm, o[0], o[1], o[2]);
@@ -90,8 +94,9 @@ dBodyID CreateComposite(dWorldID world, dSpaceID space,
   }
   dMassTranslate(&mass, -mass.c[0], -mass.c[1], -mass.c[2]);
   dBodySetMass(b, &mass); // CG == (0, 0, 0)
-  for(auto it = gts.begin(); it != gts.end(); ++it) dGeomSetBody(it->first, b);
+  for(auto it = gto.begin(); it != gto.end(); ++it) dGeomSetBody(*it, b);
   gts.clear();
+  gto.clear();
   return MapBody(key, b);
 }
 
