@@ -71,6 +71,18 @@ dVector4 palette[] = {
   {0.8, 0.4, 0.8, 1.0}, // geomBunny
   {0.6, 0.2, 0.8, 1.0}, // geomTmCustom
   {0.2, 0.6, 0.8, 1.0}, // geomCustom
+  {0.6, 0.2, 0.8, 0.6}, // uball in
+  {0.2, 0.8, 0.6, 0.4}, // uball out
+  {0.6, 0.2, 0.8, 0.6}, // luball in
+  {0.2, 0.8, 0.6, 0.4}, // luball out
+  {0.6, 0.2, 0.8, 0.6}, // ruball in
+  {0.2, 0.8, 0.6, 0.4}, // ruball out
+  {0.6, 0.2, 0.8, 0.6}, // vball in
+  {0.2, 0.8, 0.6, 0.4}, // vball out
+  {0.6, 0.2, 0.8, 0.6}, // lvball in
+  {0.2, 0.8, 0.6, 0.4}, // lvball out
+  {0.6, 0.2, 0.8, 0.6}, // rvball in
+  {0.2, 0.8, 0.6, 0.4}, // rvball out
   {0.2, 1.0, 0.8, 0.4} // geomPlane
 };
 
@@ -80,19 +92,25 @@ dReal slopeO[][3] = {{0.0, 0.0, 0.0}, {-3.0, 0.0, 0.0}}; // offset
 dReal slopeP[][4] = {{6.0, 0.1, 8.0}, {1.0, 2.0}}; // lxyz, RL
 dQuaternion slopeQ[] = {{}, {}};
 void *slopeV[] = {NULL, NULL};
-dReal *slopeA[] = {palette[3], palette[14]};
+dReal *slopeA[] = {palette[3], palette[26]};
 metacomposite slope = {
   A_SIZE(slopeC), slopeC, slopeD, slopeO, slopeP, slopeQ, slopeV, slopeA};
 
 int uballC[] = {dSphereClass, dSphereClass};
 dReal uballD[] = {DENSITY, DENSITY};
-dReal uballO[][3] = {{0.0, 0.0, 0.0}, {0.05, 0.0, 0.0}}; // offset
-dReal uballP[][4] = {{0.2}, {0.1}}; // Rout, Rin
+dReal uballO[][3] = {{0.05, 0.0, 0.0}, {0.0, 0.0, 0.0}}; // offset
+dReal uballP[][4] = {{0.1}, {0.2}}; // Rin, Rout
 dQuaternion uballQ[] = {{}, {}};
 void *uballV[] = {NULL, NULL};
-dReal *uballA[] = {palette[14], palette[3]};
+dReal *uballA[] = {palette[14], palette[15]};
+dReal *luballA[] = {palette[16], palette[17]};
+dReal *ruballA[] = {palette[18], palette[19]};
 metacomposite uball = {
   A_SIZE(uballC), uballC, uballD, uballO, uballP, uballQ, uballV, uballA};
+metacomposite luball = {
+  A_SIZE(uballC), uballC, uballD, uballO, uballP, uballQ, uballV, luballA};
+metacomposite ruball = {
+  A_SIZE(uballC), uballC, uballD, uballO, uballP, uballQ, uballV, ruballA};
 
 metasphere apple = {0.2, 1.0, 1.0, palette[0]};
 metasphere ball = {0.1, 1.0, 0.5, palette[1]};
@@ -141,7 +159,7 @@ cout << "U ball" << endl;
   dBodySetPosition(u, -12.0, 1.0, 1.2); // on the slope
   dBodyEnable(u);
 cout << "LU ball" << endl;
-  dBodyID lu = CreateComposite(world, space, "luball", &uball);
+  dBodyID lu = CreateComposite(world, space, "luball", &luball);
   dBodySetPosition(lu, -12.0, 2.0, 1.2); // on the slope
   if(1){
     dQuaternion o, p, q;
@@ -151,7 +169,7 @@ cout << "LU ball" << endl;
   }
   dBodyEnable(lu);
 cout << "RU ball" << endl;
-  dBodyID ru = CreateComposite(world, space, "ruball", &uball);
+  dBodyID ru = CreateComposite(world, space, "ruball", &ruball);
   dBodySetPosition(ru, -12.0, -1.0, 1.2); // on the slope
   if(1){
     dQuaternion o, p, q;
@@ -244,7 +262,7 @@ cout << "Custom" << endl;
   dBodyEnable(o);
 cout << "Plane" << endl;
   if(0){
-    metaplane plane = {{0, 0, 1, 0}, {10.0, 10.0, 0.05}, DENSITY, palette[14]};
+    metaplane plane = {{0, 0, 1, 0}, {10.0, 10.0, 0.05}, DENSITY, palette[26]};
     dBodyID p = CreatePlane(world, space, "plane", &plane);
     dBodySetPosition(p, 0.0, 0.0, 0.05);
     dMatrix3 rot;
