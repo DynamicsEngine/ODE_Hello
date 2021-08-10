@@ -18,18 +18,17 @@ struct metaplane {
 };
 
 struct metacomposite {
-  int numcomposite;
-  int *clsID;
-  dReal *dm; // density or mass
-  dReal (*offset)[3];
-  dReal (*params)[4];
-  dQuaternion *q;
-  void **v; // trimeshvi or convexfvp
-  dReal **colour;
+  int clsID;
+  dReal dm; // density or mass
+  dVector3 offset;
+  dVector4 params;
+  dQuaternion q;
+  void *v; // trimeshvi or convexfvp
+  dReal *colour;
 };
 
 extern dBodyID CreateComposite(dWorldID world, dSpaceID space,
-  const char *key, metacomposite *mc);
+  const char *key, metacomposite *mc, int numcomposite);
 
 extern dBodyID CreateSphere(dWorldID world, dSpaceID space,
   const char *key, metasphere *s);

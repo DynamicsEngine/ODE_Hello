@@ -15,21 +15,21 @@
 using namespace std;
 
 dBodyID CreateComposite(dWorldID world, dSpaceID space,
-  const char *key, metacomposite *mc)
+  const char *key, metacomposite *mc, int numcomposite)
 {
   map<dGeomID, pair<dGeomID, const dReal *> > gts; // <trans, <sub, offset> >
   gts.clear();
   dBodyID b = dBodyCreate(world);
   dMass mass;
   dMassSetZero(&mass);
-  for(int j = 0; j < mc->numcomposite; ++j){
+  for(int j = 0; j < numcomposite; ++j){
     dMass subm;
     dMassSetZero(&subm);
     dGeomID gsub = NULL, gtrans = dCreateGeomTransform(space);
     dGeomTransformSetCleanup(gtrans, 1);
-    dReal dm = mc->dm[j];
-    dReal *param = mc->params[j];
-    switch(mc->clsID[j]){
+    dReal dm = mc[j].dm;
+    dReal *param = mc[j].params;
+    switch(mc[j].clsID){
     case dSphereClass: {
       gsub = dCreateSphere(0, param[0]);
       dMassSetSphere(&subm, dm, param[0]);
@@ -52,34 +52,34 @@ dBodyID CreateComposite(dWorldID world, dSpaceID space,
       dMassSetBox(&subm, dm, 10.0, 10.0, 0.05); // ***
     } break;
     case dConvexClass: {
-      gsub = CreateGeomConvexFromFVP(0, (convexfvp *)mc->v[j]);
+      gsub = CreateGeomConvexFromFVP(0, (convexfvp *)mc[j].v);
       dMassSetSphere(&subm, dm, 0.5); // ***
       dGeomSetPosition(gsub, -subm.c[0], -subm.c[1], -subm.c[2]); // ***
       dMassTranslate(&subm, -subm.c[0], -subm.c[1], -subm.c[2]); // ***
     } break;
     case dTriMeshClass: {
-      gsub = CreateGeomTrimeshFromVI(0, (trimeshvi *)mc->v[j]);
+      gsub = CreateGeomTrimeshFromVI(0, (trimeshvi *)mc[j].v);
       dMassSetTrimesh(&subm, dm, gsub);
       dGeomSetPosition(gsub, -subm.c[0], -subm.c[1], -subm.c[2]); // ***
       dMassTranslate(&subm, -subm.c[0], -subm.c[1], -subm.c[2]); // ***
     } break;
     default:
       printf("not implemented type dGeomGetClass() in CreateComposite\n");
-      printf(" geomID: %p, classID: %d\n", gtrans, mc->clsID[j]);
+      printf(" geomID: %p, classID: %d\n", gtrans, mc[j].clsID);
       break;
     }
     dGeomTransformSetGeom(gtrans, gsub);
-    // MapGeomColour(gtrans, mc->colour[j]); // trans will not be shown
-    MapGeomColour(gsub, mc->colour[j]);
-    dReal *o = mc->offset[j];
+    // MapGeomColour(gtrans, mc[j].colour); // trans will not be shown
+    MapGeomColour(gsub, mc[j].colour);
+    dReal *o = mc[j].offset;
     gts.insert(make_pair(gtrans, make_pair(gsub, o)));
     dGeomSetPosition(gsub, o[0], o[1], o[2]);
     dMassTranslate(&subm, o[0], o[1], o[2]);
     // dQuaternion q;
-    // dQSetIdentity(mc->q[j]); // dQFromAxisAndAngle(q, , , , M_PI / 2);
-    dGeomSetQuaternion(gsub, mc->q[j]);
+    // dQSetIdentity(mc[j].q); // dQFromAxisAndAngle(q, , , , M_PI / 2);
+    dGeomSetQuaternion(gsub, mc[j].q);
     dMatrix3 rot;
-    dRfromQ(rot, mc->q[j]);
+    dRfromQ(rot, mc[j].q);
     dMassRotate(&subm, rot);
     dMassAdd(&mass, &subm);
   } // CG != (0, 0, 0)
