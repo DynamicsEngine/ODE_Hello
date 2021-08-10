@@ -132,7 +132,8 @@ void DrawGeom(dGeomID geom, const dReal *pos, const dReal *rot, int ws)
     for(int i = 0; i < triCount; ++i){
       dVector3 v0, v1, v2;
       dGeomTriMeshGetTriangle(geom, i, &v0, &v1, &v2); // already transformed
-      dsDrawTriangleD(tpos, trot, v0, v1, v2, ws);
+      if(dGeomGetSpace(geom)) dsDrawTriangleD(tpos, trot, v0, v1, v2, ws);
+      else dsDrawTriangleD(pos, rot, v0, v1, v2, ws); // in the dTransformClass
     }
   } break;
 #if 0

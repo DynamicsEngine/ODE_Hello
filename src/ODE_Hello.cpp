@@ -94,8 +94,8 @@ metasphere ball = {0.1, 1.0, 0.5, palette[1]};
 metasphere roll = {0.2, 1.0, 0.8, palette[2]};
 
 metacomposite tmball[] = { // trimesh, Rout
-  {dTriMeshClass, DENSITY, {0, 0, 0}, {}, {}, &tmvBunny, palette[3]},
-  {dSphereClass, DENSITY, {0, 0, 0}, {1.2}, {}, NULL, palette[29]}};
+  {dTriMeshClass, DENSITY * 0.1, {0, 0, 0}, {}, {}, &tmvBunny, palette[3]},
+  {dSphereClass, DENSITY * 0.1, {0, 0, 0}, {1.2}, {}, NULL, palette[29]}};
 
 metacomposite slope[] = { // lxyz, RL
   {dBoxClass, DENSITY, {0, 0, 0}, {6.0, 0.1, 8.0}, {}, NULL, palette[3]},
@@ -152,7 +152,13 @@ cout << "Sphere green" << endl;
 
 cout << "TmBall" << endl;
   dBodyID w = CreateComposite(world, space, "tmball", tmball, A_SIZE(tmball));
-  dBodySetPosition(w, -4.0, 4.0, 2.0);
+  dBodySetPosition(w, -14.0, -3.0, 3.0);
+  if(1){
+    dQuaternion o, p, q;
+    dQFromAxisAndAngle(q, 1, 0, 0, M_PI / 2);
+    dQMultiply0(o, p, q);
+    dBodySetQuaternion(w, o);
+  }
   dBodyEnable(w);
 
 cout << "Slope" << endl;
@@ -389,7 +395,7 @@ void command(int cmd)
   case 'm': printf("move_delta = %f\n", move_delta *= 0.9); break;
   case 'i': printf("move_delta = %f\n", move_delta *= 1.1); break;
   case 't': {
-    char *torqueX[] = {"apple", "roll",
+    char *torqueX[] = {"apple", "roll", "tmball",
       "cube", "icosahedron", "custom"};
     for(int i = 0; i < A_SIZE(torqueX); ++i)
       dBodySetTorque(FindBody(torqueX[i]), -0.5, 0.0, 0.0);
