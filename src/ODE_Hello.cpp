@@ -112,16 +112,16 @@ metacomposite ruball[] = { // Rin, Rout
   {dSphereClass, DENSITY, {0, 0, 0}, {0.2}, {}, NULL, palette[19]}};
 
 metacomposite vball[] = { // lxyz, RL, Rout
-  {dBoxClass, DENSITY, {0, 0, 0}, {0.1, 0.3, 0.1}, {}, NULL, palette[20]},
-  {dCylinderClass, DENSITY, {0, 0, 0}, {0.1, 0.3}, {}, NULL, palette[21]},
+  {dBoxClass, DENSITY, {0.05, 0, 0}, {0.2, 0.1, 0.1}, {}, NULL, palette[20]},
+  {dCapsuleClass, DENSITY, {0, 0, 0}, {0.05, 0.2}, {}, NULL, palette[21]},
   {dSphereClass, DENSITY, {0, 0, 0}, {0.2}, {}, NULL, palette[22]}};
 metacomposite lvball[] = { // lxyz, RL, Rout
-  {dBoxClass, DENSITY, {0, 0, 0}, {0.1, 0.3, 0.1}, {}, NULL, palette[23]},
-  {dCylinderClass, DENSITY, {0, 0, 0}, {0.1, 0.3}, {}, NULL, palette[24]},
+  {dBoxClass, DENSITY, {0.05, 0, 0}, {0.2, 0.1, 0.1}, {}, NULL, palette[23]},
+  {dCapsuleClass, DENSITY, {0, 0, 0}, {0.05, 0.2}, {}, NULL, palette[24]},
   {dSphereClass, DENSITY, {0, 0, 0}, {0.2}, {}, NULL, palette[25]}};
 metacomposite rvball[] = { // lxyz, RL, Rout
-  {dBoxClass, DENSITY, {0, 0, 0}, {0.1, 0.3, 0.1}, {}, NULL, palette[26]},
-  {dCylinderClass, DENSITY, {0, 0, 0}, {0.1, 0.3}, {}, NULL, palette[27]},
+  {dBoxClass, DENSITY, {0.05, 0, 0}, {0.2, 0.1, 0.1}, {}, NULL, palette[26]},
+  {dCapsuleClass, DENSITY, {0, 0, 0}, {0.05, 0.2}, {}, NULL, palette[27]},
   {dSphereClass, DENSITY, {0, 0, 0}, {0.2}, {}, NULL, palette[28]}};
 
 void CreateObjects(dWorldID world);
@@ -155,8 +155,13 @@ cout << "TmBall" << endl;
   dBodySetPosition(w, -14.0, -3.0, 3.0);
   if(1){
     dQuaternion o, p, q;
+#if 0
     dQFromAxisAndAngle(q, 0, 1, 0, M_PI / 2);
     dQFromAxisAndAngle(p, 1, 0, 0, M_PI / 2);
+#else
+    dQFromAxisAndAngle(q, 1, 0, 0, M_PI / 2);
+    dQSetIdentity(p);
+#endif
     dQMultiply0(o, p, q);
     dBodySetQuaternion(w, o);
   }
