@@ -42,7 +42,7 @@ dBodyID CreateTrimeshFromVI(dWorldID world, dSpaceID space,
   dBodySetMass(b, &mass);
   dGeomSetBody(geom, b);
   MapGeomColour(geom, mt->colour);
-  return MapBody(key, b);
+  return MapBody(key, OrderBody(b, 0));
 }
 
 // convexfvp *CreateConvexTemplate(convexfvp *fvp, , , , , )
@@ -70,5 +70,5 @@ dBodyID CreateConvexFromFVP(dWorldID world, dSpaceID space,
   dBodySetMass(b, &mass);
   dGeomSetBody(geom, b);
   MapGeomColour(geom, mc->colour);
-  return MapBody(key, b);
+  return MapBody(key, OrderBody(b, 0));
 }

@@ -8,8 +8,8 @@
 extern dGeomID MapGeomConvex(dGeomID geom, convexfvp *fvp);
 extern dGeomID MapGeomColour(dGeomID geom, const dReal *colour);
 extern dBodyID MapBody(const char *key, dBodyID body);
-
 extern dBodyID FindBody(const char *key);
+extern dBodyID OrderBody(dBodyID body, int pos);
 
 extern void DestroyObject(dBodyID body);
 extern void DestroyObjects();

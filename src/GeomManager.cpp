@@ -9,12 +9,14 @@
 #include <geommanager.h>
 
 #include <map>
+#include <vector>
 
 using namespace std;
 
 static map<dGeomID, convexfvp *> geom_convex_manager;
 static map<dGeomID, const dReal *> geom_colour_manager;
 static map<const char *, dBodyID> geom_body_manager;
+static vector<dBodyID> geom_body_order;
 
 dGeomID MapGeomConvex(dGeomID geom, convexfvp *fvp)
 {
@@ -39,6 +41,13 @@ dBodyID FindBody(const char *key)
   return geom_body_manager[key];
 }
 
+dBodyID OrderBody(dBodyID body, int pos)
+{
+  if(pos < 0) geom_body_order.insert(geom_body_order.end() + (pos + 1), body);
+  else geom_body_order.insert(geom_body_order.begin() + pos, body);
+  return body;
+}
+
 void DestroyObject(dBodyID body)
 {
   dGeomID geom = dBodyGetFirstGeom(body);
@@ -56,6 +65,7 @@ void DestroyObjects()
   for(auto it = geom_body_manager.begin(); it != geom_body_manager.end(); ++it)
     DestroyObject(it->second);
 
+  geom_body_order.clear();
   geom_body_manager.clear();
   geom_colour_manager.clear();
   geom_convex_manager.clear();
@@ -65,8 +75,8 @@ void DrawObjects(int ws)
 {
   dsSetTexture(DS_WOOD); // DS_SKY DS_GROUND DS_CHECKERED
 
-  for(auto it = geom_body_manager.begin(); it != geom_body_manager.end(); ++it)
-    for(dGeomID g = dBodyGetFirstGeom(it->second); g; g = dBodyGetNextGeom(g))
+  for(auto it = geom_body_order.begin(); it != geom_body_order.end(); ++it)
+    for(dGeomID g = dBodyGetFirstGeom(*it); g; g = dBodyGetNextGeom(g))
       DrawGeom(g, NULL, NULL, ws);
 }
 

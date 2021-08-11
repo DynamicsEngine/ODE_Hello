@@ -97,7 +97,7 @@ dBodyID CreateComposite(dWorldID world, dSpaceID space,
   for(auto it = gto.begin(); it != gto.end(); ++it) dGeomSetBody(*it, b);
   gts.clear();
   gto.clear();
-  return MapBody(key, b);
+  return MapBody(key, OrderBody(b, 0));
 }
 
 dBodyID CreateSphere(dWorldID world, dSpaceID space,
@@ -111,7 +111,7 @@ dBodyID CreateSphere(dWorldID world, dSpaceID space,
   dGeomID geom = dCreateSphere(space, s->r);
   dGeomSetBody(geom, b);
   MapGeomColour(geom, s->colour);
-  return MapBody(key, b);
+  return MapBody(key, OrderBody(b, 0));
 }
 
 dBodyID CreatePlane(dWorldID world, dSpaceID space,
@@ -125,5 +125,5 @@ dBodyID CreatePlane(dWorldID world, dSpaceID space,
   dGeomID geom = dCreatePlane(space, p->v[0], p->v[1], p->v[2], p->v[3]);
   dGeomSetBody(geom, b);
   MapGeomColour(geom, p->colour);
-  return MapBody(key, b);
+  return MapBody(key, OrderBody(b, 0));
 }
