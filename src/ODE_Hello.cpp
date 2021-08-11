@@ -60,38 +60,34 @@ dVector4 palette[] = {
   {0.8, 0.4, 0.4, 1.0}, // apple
   {0.4, 0.4, 0.8, 1.0}, // ball
   {0.4, 0.8, 0.4, 1.0}, // roll
-  {1.0, 0.8, 0.2, 0.6}, // geomSlope
-  {0.8, 0.6, 0.2, 1.0}, // geomTmTetra
-  {0.4, 0.8, 0.4, 1.0}, // geomTetra
-  {0.6, 0.8, 0.2, 1.0}, // geomTmCube
-  {0.8, 0.8, 0.4, 1.0}, // geomCube
-  {0.2, 0.8, 0.6, 1.0}, // geomTmIcosahedron
-  {0.4, 0.8, 0.8, 1.0}, // geomIcosahedron
-  {0.8, 0.2, 0.6, 1.0}, // geomTmBunny
-  {0.8, 0.4, 0.8, 1.0}, // geomBunny
-  {0.6, 0.2, 0.8, 1.0}, // geomTmCustom
-  {0.2, 0.6, 0.8, 1.0}, // geomCustom
-  {0.6, 0.2, 0.8, 0.6}, // uball in
-  {0.2, 0.8, 0.6, 0.4}, // uball out
-  {0.6, 0.2, 0.8, 0.6}, // luball in
-  {0.2, 0.8, 0.6, 0.4}, // luball out
-  {0.6, 0.2, 0.8, 0.6}, // ruball in
-  {0.2, 0.8, 0.6, 0.4}, // ruball out
+  {1.0, 0.8, 0.2, 0.6}, // slope(Box), tmball(TriMesh)
+  {0.8, 0.6, 0.2, 1.0}, // tmtetra
+  {0.4, 0.8, 0.4, 1.0}, // tetra
+  {0.6, 0.8, 0.2, 1.0}, // tmtube
+  {0.8, 0.8, 0.4, 1.0}, // cube
+  {0.2, 0.8, 0.6, 1.0}, // tmicosahedron
+  {0.4, 0.8, 0.8, 1.0}, // icosahedron
+  {0.8, 0.2, 0.6, 1.0}, // tmbunny
+  {0.8, 0.4, 0.8, 1.0}, // bunny
+  {0.6, 0.2, 0.8, 1.0}, // tmcustom
+  {0.2, 0.6, 0.8, 1.0}, // custom
+  {0.6, 0.2, 0.8, 0.6}, // uball in Sphere
+  {0.2, 0.8, 0.6, 0.4}, // uball out Sphere
+  {0.6, 0.2, 0.8, 0.6}, // luball in Sphere
+  {0.2, 0.8, 0.6, 0.4}, // luball out Sphere
+  {0.6, 0.2, 0.8, 0.6}, // ruball in Sphere
+  {0.2, 0.8, 0.6, 0.4}, // ruball out Sphere
   {0.6, 0.2, 0.8, 0.6}, // vball in Box
-  {0.8, 0.2, 0.6, 0.6}, // vball in Cylinder
-  {0.2, 0.8, 0.6, 0.4}, // vball out
+  {0.8, 0.2, 0.6, 0.6}, // vball in Capsule
+  {0.2, 0.8, 0.6, 0.4}, // vball out Sphere
   {0.6, 0.2, 0.8, 0.6}, // lvball in Box
-  {0.8, 0.2, 0.6, 0.6}, // lvball in Cylinder
-  {0.2, 0.8, 0.6, 0.4}, // lvball out
+  {0.8, 0.2, 0.6, 0.6}, // lvball in Capsule
+  {0.2, 0.8, 0.6, 0.4}, // lvball out Sphere
   {0.6, 0.2, 0.8, 0.6}, // rvball in Box
-  {0.8, 0.2, 0.6, 0.6}, // rvball in Cylinder
-  {0.2, 0.8, 0.6, 0.4}, // rvball out
-  {0.2, 1.0, 0.8, 0.4} // geomPlane
+  {0.8, 0.2, 0.6, 0.6}, // rvball in Capsule
+  {0.2, 0.8, 0.6, 0.4}, // rvball out Sphere
+  {0.2, 1.0, 0.8, 0.4} // plane, slope(Cylinder), tmball(Sphere)
 };
-
-metasphere apple = {0.2, 1.0, 1.0, palette[0]};
-metasphere ball = {0.1, 1.0, 0.5, palette[1]};
-metasphere roll = {0.2, 1.0, 0.8, palette[2]};
 
 metacomposite tmball[] = { // trimesh, Rout
   {dTriMeshClass, DENSITY * 0.1, {0, 0, 0}, {}, {}, &tmvBunny, palette[3]},
@@ -100,6 +96,10 @@ metacomposite tmball[] = { // trimesh, Rout
 metacomposite slope[] = { // lxyz, RL
   {dBoxClass, DENSITY, {0, 0, 0}, {6.0, 0.1, 8.0}, {}, NULL, palette[3]},
   {dCylinderClass, DENSITY, {-3.0, 0, 0}, {1.0, 2.0}, {}, NULL, palette[29]}};
+
+metasphere apple = {0.2, 1.0, 1.0, palette[0]};
+metasphere ball = {0.1, 1.0, 0.5, palette[1]};
+metasphere roll = {0.2, 1.0, 0.8, palette[2]};
 
 metacomposite uball[] = { // Rin, Rout
   {dSphereClass, DENSITY, {0.05, 0, 0}, {0.1}, {}, NULL, palette[14]},
@@ -139,17 +139,6 @@ void setDrawStuff(dsFunctions *fn);
 
 void CreateObjects(dWorldID world)
 {
-cout << "Sphere red" << endl;
-  dBodyID ba = CreateSphere(world, space, "apple", &apple);
-  dBodySetPosition(ba, -0.15, 0.31, 2.5); // x, y on the bunny
-  dBodyDisable(ba);
-cout << "Sphere blue" << endl;
-  dBodyID bb = CreateSphere(world, space, "ball", &ball);
-  dBodySetPosition(bb, 0.5, 0.0, ball.r);
-cout << "Sphere green" << endl;
-  dBodyID br = CreateSphere(world, space, "roll", &roll);
-  dBodySetPosition(br, -12.0, 0.0, 1.2); // on the slope
-
 cout << "TmBall" << endl;
   dBodyID w = CreateComposite(world, space, "tmball", tmball, A_SIZE(tmball));
   dBodySetPosition(w, -14.0, -3.0, 3.0);
@@ -178,6 +167,17 @@ cout << "Slope" << endl;
     dBodySetQuaternion(s, o);
   }
   dBodyEnable(s); // dBodyDisable(s);
+
+cout << "Sphere red" << endl;
+  dBodyID ba = CreateSphere(world, space, "apple", &apple);
+  dBodySetPosition(ba, -0.15, 0.31, 2.5); // x, y on the bunny
+  dBodyDisable(ba);
+cout << "Sphere blue" << endl;
+  dBodyID bb = CreateSphere(world, space, "ball", &ball);
+  dBodySetPosition(bb, 0.5, 0.0, ball.r);
+cout << "Sphere green" << endl;
+  dBodyID br = CreateSphere(world, space, "roll", &roll);
+  dBodySetPosition(br, -12.0, 0.0, 1.2); // on the slope
 
 cout << "U ball" << endl;
   dBodyID u = CreateComposite(world, space, "uball", uball, A_SIZE(uball));

@@ -15,7 +15,7 @@ using namespace std;
 
 static map<dGeomID, convexfvp *> geom_convex_manager;
 static map<dGeomID, const dReal *> geom_colour_manager;
-static map<const char *, dBodyID> geom_body_manager;
+static map<string, dBodyID> geom_body_manager;
 static vector<dBodyID> geom_body_order;
 
 dGeomID MapGeomConvex(dGeomID geom, convexfvp *fvp)
