@@ -503,6 +503,30 @@ int main(int ac, char **av)
   setParameters();
   CreateObjects(world);
 
+  if(0){
+    printf("sizeof(dReal): %d\n", sizeof(dReal)); // 8
+    dQuaternion q;
+    dQSetIdentity(q); // [1 0 0 0] (cos(t/2), sin(t/2)x, sin(t/2)y, sin(t/2)z)
+    // dQFromAxisAndAngle(q, 1, 0, 0, M_PI); // [0 1 0 0]
+    // dQFromAxisAndAngle(q, 0, 1, 0, M_PI); // [0 0 1 0]
+    // dQFromAxisAndAngle(q, 0, 0, 1, M_PI); // [0 0 0 1]
+    // dQFromAxisAndAngle(q, 1, 0, 0, M_PI / 2); // [0.7071 0.7071 0 0]
+    printf("sizeof(dQuaternion): %d\n", sizeof(dQuaternion)); // 32 (8 x 4)
+//    printf("sizeof(dQuaternion[0]): %d\n", sizeof(dQuaternion[0])); // 0 !
+//    printf("A_SIZE(dQuaternion): %d\n", A_SIZE(dQuaternion)); // hung up !!
+    for(int i = 0; i < 4; ++i) printf("%17.13f ", ((dReal *)q)[i]);
+    printf("\n");
+    dMatrix3 rot;
+    dRfromQ(rot, q); // rot[[1 0 0 0] [0 1 0 0] [0 0 1 0]] <- q[1 0 0 0]
+    printf("sizeof(dMatrix3): %d\n", sizeof(dMatrix3)); // 96 (8 x 12)
+//    printf("sizeof(dMatrix3[0]): %d\n", sizeof(dMatrix3[0])); // 0 !
+//    printf("A_SIZE(dMatrix3): %d\n", A_SIZE(dMatrix3)); // hung up !!
+    for(int r = 0; r < 3; ++r){
+      for(int c = 0; c < 4; ++c) printf("%17.13f ", ((dReal *)rot)[r * 4 + c]);
+      printf("\n");
+    }
+  }
+
   dsFunctions fn;
   setDrawStuff(&fn);
   dsSimulationLoop(ac, av, WIDTH, HEIGHT, &fn);
