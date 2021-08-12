@@ -10,7 +10,7 @@
 #include <gencomposite.h>
 
 #include <iostream>
-#include <map>
+#include <unordered_map>
 #include <vector>
 
 using namespace std;
@@ -20,7 +20,7 @@ dBodyID CreateComposite(dWorldID world, dSpaceID space,
 {
   vector<dGeomID> gto; // to keep order
   gto.clear();
-  map<dGeomID, pair<dGeomID, const dReal *> > gts; // <trans, <sub, offset> >
+  unordered_map<dGeomID, pair<dGeomID, const dReal *> > gts; // gtrans, gsub, o
   gts.clear();
   dBodyID b = dBodyCreate(world);
   dMass mass;

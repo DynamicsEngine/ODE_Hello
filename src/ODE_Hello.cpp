@@ -113,15 +113,15 @@ metacomposite ruball[] = { // Rin, Rout
 
 metacomposite vball[] = { // lxyz, RL, Rout
   {dBoxClass, DENSITY, {0.05, 0, 0}, {0.2, 0.1, 0.1}, {}, NULL, palette[20]},
-  {dCapsuleClass, DENSITY, {0, 0, 0}, {0.05, 0.2}, {}, NULL, palette[21]},
+  {dCapsuleClass, DENSITY, {0, 0, 0.03}, {0.05, 0.2}, {}, NULL, palette[21]},
   {dSphereClass, DENSITY, {0, 0, 0}, {0.2}, {}, NULL, palette[22]}};
 metacomposite lvball[] = { // lxyz, RL, Rout
   {dBoxClass, DENSITY, {0.05, 0, 0}, {0.2, 0.1, 0.1}, {}, NULL, palette[23]},
-  {dCapsuleClass, DENSITY, {0, 0, 0}, {0.05, 0.2}, {}, NULL, palette[24]},
+  {dCapsuleClass, DENSITY, {0, 0, 0.03}, {0.05, 0.2}, {}, NULL, palette[24]},
   {dSphereClass, DENSITY, {0, 0, 0}, {0.2}, {}, NULL, palette[25]}};
 metacomposite rvball[] = { // lxyz, RL, Rout
   {dBoxClass, DENSITY, {0.05, 0, 0}, {0.2, 0.1, 0.1}, {}, NULL, palette[26]},
-  {dCapsuleClass, DENSITY, {0, 0, 0}, {0.05, 0.2}, {}, NULL, palette[27]},
+  {dCapsuleClass, DENSITY, {0, 0, 0.03}, {0.05, 0.2}, {}, NULL, palette[27]},
   {dSphereClass, DENSITY, {0, 0, 0}, {0.2}, {}, NULL, palette[28]}};
 
 void CreateObjects(dWorldID world);
@@ -181,11 +181,11 @@ cout << "Sphere green" << endl;
 
 cout << "U ball" << endl;
   dBodyID u = CreateComposite(world, space, "uball", uball, A_SIZE(uball));
-  dBodySetPosition(u, -12.0, 1.0, 1.2); // on the slope
+  dBodySetPosition(u, -12.0, 0.5, 1.2); // on the slope
   dBodyEnable(u);
 cout << "LU ball" << endl;
   dBodyID lu = CreateComposite(world, space, "luball", luball, A_SIZE(luball));
-  dBodySetPosition(lu, -12.0, 2.0, 1.2); // on the slope
+  dBodySetPosition(lu, -12.0, 2.5, 1.2); // on the slope
   if(1){
     dQuaternion o, p, q;
     dQFromAxisAndAngle(q, 0, 0, 1, M_PI / 2);
@@ -196,7 +196,7 @@ cout << "LU ball" << endl;
   dBodyEnable(lu);
 cout << "RU ball" << endl;
   dBodyID ru = CreateComposite(world, space, "ruball", ruball, A_SIZE(ruball));
-  dBodySetPosition(ru, -12.0, -1.0, 1.2); // on the slope
+  dBodySetPosition(ru, -12.0, -0.5, 1.2); // on the slope
   if(1){
     dQuaternion o, p, q;
     dQFromAxisAndAngle(q, 0, 0, 1, -M_PI / 2);
@@ -212,7 +212,7 @@ cout << "V ball" << endl;
   dBodyEnable(v);
 cout << "LV ball" << endl;
   dBodyID lv = CreateComposite(world, space, "lvball", lvball, A_SIZE(lvball));
-  dBodySetPosition(lv, -12.0, 2.5, 1.2); // on the slope
+  dBodySetPosition(lv, -12.0, 3.5, 1.2); // on the slope
   if(1){
     dQuaternion o, p, q;
     dQFromAxisAndAngle(q, 0, 0, 1, M_PI / 2);
