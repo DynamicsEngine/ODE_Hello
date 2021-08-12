@@ -34,12 +34,32 @@ struct metaconvex {
   dReal *colour;
 };
 
-// extern trimeshvi *CreateTrimeshTemplate(trimeshvi *tmv, , , , );
+extern void FreeTriMeshVI(trimeshvi *tmv);
+extern void FreeMetaTriMesh(metatrimesh *mt);
+
+extern void FreeConvexFVP(convexfvp *fvp);
+extern void FreeMetaConvex(metaconvex *mc);
+
+extern trimeshvi *CvtTriMeshVIFromConvexFVP(convexfvp *fvp, dReal sc);
+extern metatrimesh *CvtMetaTriMeshFromMetaConvex(metaconvex *mc, dReal sc);
+
+extern convexfvp *CvtConvexFVPFromTriMeshVI(trimeshvi *tmv, dReal sc);
+extern metaconvex *CvtMetaConvexFromMetaTriMesh(metatrimesh *mt, dReal sc);
+
+extern trimeshvi *ScaleTriMeshVI(trimeshvi *tmv, dReal sc);
+extern trimeshvi *CopyTriMeshVI(trimeshvi *dst, trimeshvi *src, dReal sc);
+extern metatrimesh *CopyMetaTriMesh(
+  metatrimesh *dst, metatrimesh *src, dReal sc);
+
 extern dGeomID CreateGeomTrimeshFromVI(dSpaceID space, trimeshvi *tmv);
 extern dBodyID CreateTrimeshFromVI(dWorldID world, dSpaceID space,
   const char *key, metatrimesh *mt);
 
-// extern convexfvp *CreateConvexTemplate(convexfvp *fvp, , , , , );
+extern convexfvp *ScaleConvexFVP(convexfvp *fvp, dReal sc);
+extern convexfvp *CopyConvexFVP(convexfvp *dst, convexfvp *src, dReal sc);
+extern metaconvex *CopyMetaConvex(
+  metaconvex *dst, metaconvex *src, dReal sc);
+
 extern dGeomID CreateGeomConvexFromFVP(dSpaceID space, convexfvp *fvp);
 extern dBodyID CreateConvexFromFVP(dWorldID world, dSpaceID space,
   const char *key, metaconvex *mc);
