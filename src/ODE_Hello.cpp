@@ -90,9 +90,9 @@ dVector4 palette[] = {
 };
 
 metatrimesh mtbunny = {DENSITY, &tmvBunny, palette[10]};
-metatrimesh *mtbunny2 = NULL;
+shared_ptr<metatrimesh> mtbunny2;
 metaconvex mcbunny = {DENSITY, &fvpBunny, palette[11]};
-metaconvex *mcbunny2 = NULL;
+shared_ptr<metaconvex> mcbunny2;
 
 metacomposite tmball[] = { // trimesh, Rout
   {dTriMeshClass, DENSITY * 0.1, {0, 0, 0}, {}, {}, &tmvBunny, palette[3]},
@@ -330,7 +330,7 @@ cout << "Plane" << endl;
   }
 cout << "TmBunny2" << endl;
   {
-    dBodyID m = CreateTrimeshFromVI(world, space, "tmbunny2", mtbunny2);
+    dBodyID m = CreateTrimeshFromVI(world, space, "tmbunny2", mtbunny2.get());
     dBodySetPosition(m, -3.0, -3.0, 2.0);
     dMatrix3 rot;
     dRFromAxisAndAngle(rot, 1, 0, 0, M_PI / 2);
@@ -339,7 +339,7 @@ cout << "TmBunny2" << endl;
   }
 cout << "Bunny2" << endl;
   {
-    dBodyID r = CreateConvexFromFVP(world, space, "bunny2", mcbunny2);
+    dBodyID r = CreateConvexFromFVP(world, space, "bunny2", mcbunny2.get());
     dBodySetPosition(r, -3.0, -2.5, 2.0);
     dBodyEnable(r);
   }
@@ -517,12 +517,10 @@ int main(int ac, char **av)
   space = dHashSpaceCreate(0);
   ground = dCreatePlane(space, 0, 0, 1, 0);
 
-  shared_ptr<metatrimesh> mt(CopyMetaTriMesh(NULL, &mtbunny, 0.2),
+  mtbunny2 = shared_ptr<metatrimesh>(CopyMetaTriMesh(NULL, &mtbunny, 0.2),
     [](metatrimesh *p){ FreeMetaTriMesh(p); });
-  mtbunny2 = mt.get();
-  shared_ptr<metaconvex> mc(CopyMetaConvex(NULL, &mcbunny, 0.2),
+  mcbunny2 = shared_ptr<metaconvex>(CopyMetaConvex(NULL, &mcbunny, 0.2),
     [](metaconvex *p){ FreeMetaConvex(p); });
-  mcbunny2 = mc.get();
 
   contactgroup = dJointGroupCreate(0);
   setParameters();
