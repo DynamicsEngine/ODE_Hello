@@ -9,14 +9,14 @@
 #include <geommanager.h>
 
 #include <unordered_map>
-#include <vector>
+#include <deque>
 
 using namespace std;
 
 static unordered_map<dGeomID, convexfvp *> geom_convex_manager;
 static unordered_map<dGeomID, const dReal *> geom_colour_manager;
 static unordered_map<string, dBodyID> geom_body_manager;
-static vector<dBodyID> geom_body_order;
+static deque<dBodyID> geom_body_order;
 
 dGeomID MapGeomConvex(dGeomID geom, convexfvp *fvp)
 {

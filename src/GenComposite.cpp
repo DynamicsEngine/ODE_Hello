@@ -11,14 +11,14 @@
 
 #include <iostream>
 #include <unordered_map>
-#include <vector>
+#include <deque>
 
 using namespace std;
 
 dBodyID CreateComposite(dWorldID world, dSpaceID space,
   const char *key, metacomposite *mc, int numcomposite)
 {
-  vector<dGeomID> gto; // to keep order
+  deque<dGeomID> gto; // to keep order
   gto.clear();
   unordered_map<dGeomID, pair<dGeomID, const dReal *> > gts; // gtrans, gsub, o
   gts.clear();
