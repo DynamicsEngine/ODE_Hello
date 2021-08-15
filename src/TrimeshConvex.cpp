@@ -8,11 +8,42 @@
 #include <trimeshconvex.h>
 #include <geommanager.h>
 
+#include <cmath>
+
 #include <iostream>
 #include <exception>
 #include <stdexcept>
 
 using namespace std;
+
+static dReal scale_min_limit = 1e-5;
+
+inline int isRescale(dReal sc){
+  dReal f = sc - 1.0;
+  return (f < -scale_min_limit) || (f > scale_min_limit);
+}
+
+void SetScaleLimit(dReal sclim)
+{
+  scale_min_limit = sclim;
+}
+
+inline void Cross3(dReal *c, dReal *a, dReal *b) // c[3] = a[3] x b[3]
+{
+  c[0] = a[1] * b[2] - a[2] * b[1];
+  c[1] = a[2] * b[0] - a[0] * b[2];
+  c[2] = a[0] * b[1] - a[1] * b[0];
+}
+
+inline void Normal4(dReal *n, dReal *v) // n[4] = normal(v[9])
+{
+  dReal a[] = {v[3] - v[0], v[4] - v[1], v[5] - v[2]};
+  dReal b[] = {v[6] - v[0], v[7] - v[1], v[8] - v[2]};
+  Cross3(n, a, b);
+  dReal r = sqrt(n[0] * n[0] + n[1] * n[1] + n[2] * n[2]);
+  for(int j = 0; j < 3; ++j) n[j] /= r;
+  n[3] = 0.1;
+}
 
 void FreeTriMeshVI(trimeshvi *tmv)
 {
@@ -47,25 +78,93 @@ void FreeMetaConvex(metaconvex *mc)
 
 trimeshvi *CvtTriMeshVIFromConvexFVP(convexfvp *fvp, dReal sc)
 {
-  trimeshvi *tmv;
+  trimeshvi *tmv = new trimeshvi;
+  if(!tmv) throw runtime_error("can't convert to trimeshvi");
+  tmv->vtxCount = fvp->vtxCount;
+  tmv->vtx = new dReal[3 * tmv->vtxCount];
+  if(!tmv->vtx) throw runtime_error("can't convert to trimeshvi.vtx");
+  memcpy(tmv->vtx, fvp->vtx, sizeof(dReal) * 3 * tmv->vtxCount);
+  if(isRescale(sc)) ScaleTriMeshVI(tmv, sc);
+  // get triangles count
+  size_t tcnt = 0;
+  unsigned int *s = fvp->polygons;
+  for(int i = 0; i < fvp->faceCount; ++i){
+    unsigned int n = *s++;
+    if(n <= 2) throw runtime_error("can't convert to trimeshvi polygon <= 2");
+    s += n;
+    tcnt += (n - 2); // triangles in the polygon
+  }
+  tmv->indexCount = 3 * tcnt;
+  tmv->indices = new dTriIndex[tmv->indexCount];
+  if(!tmv->indices) throw runtime_error("can't convert to trimeshvi.indices");
+  // set triangle indices
+  dTriIndex *p = tmv->indices;
+  s = fvp->polygons;
+  for(int i = 0; i < fvp->faceCount; ++i){
+    unsigned int n = *s++;
+    for(int t = 0; t < (n - 2); ++t){ // triangle number
+      *p++ = (dTriIndex)*s++; // [0] [2] [3] [4] ...
+      *p++ = (dTriIndex)*s; // [1] [3] [4] [5] ...
+      if(!t) *p++ = (dTriIndex)*++s; // [2]
+      else *p++ = (dTriIndex)*(s - 2 - t); // [0]
+    }
+    ++s;
+  }
   return tmv;
 }
 
-metatrimesh *CvtMetaTriMeshFromMetaConvex(metaconvex *mc, dReal sc)
+metatrimesh *CvtMetaTriMeshFromConvex(metaconvex *mc, dReal sc)
 {
-  metatrimesh *mt;
+  metatrimesh *mt = new metatrimesh;
+  if(!mt) throw runtime_error("can't create metatrimesh cvt");
+  mt->density = mc->density;
+  mt->tmv = CvtTriMeshVIFromConvexFVP(mc->fvp, sc);
+  mt->colour = mc->colour;
   return mt;
 }
 
 convexfvp *CvtConvexFVPFromTriMeshVI(trimeshvi *tmv, dReal sc)
 {
-  convexfvp *fvp;
+  convexfvp *fvp = new convexfvp;
+  if(!fvp) throw runtime_error("can't convert to convexfvp");
+  fvp->faceCount = tmv->indexCount / 3;
+  fvp->faces = new dReal[4 * fvp->faceCount];
+  if(!fvp->faces) throw runtime_error("can't convert to convexfvp.faces");
+  fvp->vtxCount = tmv->vtxCount;
+  fvp->vtx = new dReal[3 * fvp->vtxCount];
+  if(!fvp->vtx) throw runtime_error("can't convert to convexfvp.vtx");
+  memcpy(fvp->vtx, tmv->vtx, sizeof(dReal) * 3 * fvp->vtxCount);
+  if(isRescale(sc)) ScaleConvexFVP(fvp, sc);
+  fvp->polygons = new unsigned int[4 * fvp->faceCount];
+  if(!fvp->polygons) throw runtime_error("can't convert to convexfvp.polygons");
+  // set triangle indices
+  dTriIndex *s = tmv->indices;
+  unsigned int *p = fvp->polygons;
+  for(int i = 0; i < fvp->faceCount; ++i){
+    *p++ = 3;
+    for(int j = 0; j < 3; ++j) *p++ = (unsigned int)*s++;
+  }
+  // set normal of faces
+  dReal *vtx = tmv->vtx;
+  s = tmv->indices;
+  for(int i = 0; i < fvp->faceCount; ++i){
+    dTriIndex idx[] = {*s++, *s++, *s++};
+    dReal v[] = {
+      vtx[idx[0] * 3 + 0], vtx[idx[0] * 3 + 1], vtx[idx[0] * 3 + 2],
+      vtx[idx[1] * 3 + 0], vtx[idx[1] * 3 + 1], vtx[idx[1] * 3 + 2],
+      vtx[idx[2] * 3 + 0], vtx[idx[2] * 3 + 1], vtx[idx[2] * 3 + 2]};
+    Normal4(&fvp->faces[i * 4], v);
+  }
   return fvp;
 }
 
-metaconvex *CvtMetaConvexFromMetaTriMesh(metatrimesh *mt, dReal sc)
+metaconvex *CvtMetaConvexFromTriMesh(metatrimesh *mt, dReal sc)
 {
-  metaconvex *mc;
+  metaconvex *mc = new metaconvex;
+  if(!mc) throw runtime_error("can't create metaconvex cvt");
+  mc->density = mt->density;
+  mc->fvp = CvtConvexFVPFromTriMeshVI(mt->tmv, sc);
+  mc->colour = mt->colour;
   return mc;
 }
 
@@ -95,7 +194,7 @@ trimeshvi *CopyTriMeshVI(trimeshvi *dst, trimeshvi *src, dReal sc)
   for(int i = 0; i < 3 * dst->vtxCount; ++i) dst->vtx[i] = sc * src->vtx[i];
 #else
   memcpy(dst->vtx, src->vtx, sizeof(dReal) * 3 * dst->vtxCount);
-  ScaleTriMeshVI(dst, sc);
+  if(isRescale(sc)) ScaleTriMeshVI(dst, sc);
 #endif
   dst->indexCount = src->indexCount;
   memcpy(dst->indices, src->indices, sizeof(dTriIndex) * dst->indexCount);
@@ -189,7 +288,7 @@ convexfvp *CopyConvexFVP(convexfvp *dst, convexfvp *src, dReal sc)
   for(int i = 0; i < 3 * dst->vtxCount; ++i) dst->vtx[i] = sc * src->vtx[i];
 #else
   memcpy(dst->vtx, src->vtx, sizeof(dReal) * 3 * dst->vtxCount);
-  ScaleConvexFVP(dst, sc);
+  if(isRescale(sc)) ScaleConvexFVP(dst, sc);
 #endif
   memcpy(dst->polygons, src->polygons, sizeof(unsigned int) * count);
   return dst;

@@ -34,6 +34,8 @@ struct metaconvex {
   dReal *colour;
 };
 
+extern void SetScaleLimit(dReal sclim);
+
 extern void FreeTriMeshVI(trimeshvi *tmv);
 extern void FreeMetaTriMesh(metatrimesh *mt);
 
@@ -41,10 +43,10 @@ extern void FreeConvexFVP(convexfvp *fvp);
 extern void FreeMetaConvex(metaconvex *mc);
 
 extern trimeshvi *CvtTriMeshVIFromConvexFVP(convexfvp *fvp, dReal sc);
-extern metatrimesh *CvtMetaTriMeshFromMetaConvex(metaconvex *mc, dReal sc);
+extern metatrimesh *CvtMetaTriMeshFromConvex(metaconvex *mc, dReal sc);
 
 extern convexfvp *CvtConvexFVPFromTriMeshVI(trimeshvi *tmv, dReal sc);
-extern metaconvex *CvtMetaConvexFromMetaTriMesh(metatrimesh *mt, dReal sc);
+extern metaconvex *CvtMetaConvexFromTriMesh(metatrimesh *mt, dReal sc);
 
 extern trimeshvi *ScaleTriMeshVI(trimeshvi *tmv, dReal sc);
 extern trimeshvi *CopyTriMeshVI(trimeshvi *dst, trimeshvi *src, dReal sc);
