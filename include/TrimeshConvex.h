@@ -36,6 +36,8 @@ struct metaconvex {
 
 extern void SetScaleLimit(dReal sclim);
 
+extern void RecalcFaces(convexfvp *fvp);
+
 extern void FreeTriMeshVI(trimeshvi *tmv);
 extern void FreeMetaTriMesh(metatrimesh *mt);
 

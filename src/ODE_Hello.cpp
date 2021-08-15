@@ -544,6 +544,9 @@ int main(int ac, char **av)
   mcbunny3 = shared_ptr<metaconvex>(CvtMetaConvexFromTriMesh(&mtbunny, 0.2),
     [](metaconvex *p){ FreeMetaConvex(p); });
 
+  RecalcFaces(mcbunny.fvp); // right normal
+  RecalcFaces(mcbunny2.get()->fvp); // right normal
+
   contactgroup = dJointGroupCreate(0);
   setParameters();
   CreateObjects(world);

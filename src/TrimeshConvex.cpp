@@ -45,6 +45,22 @@ inline void Normal4(dReal *n, dReal *v) // n[4] = normal(v[9])
   n[3] = 0.333;
 }
 
+void RecalcFaces(convexfvp *fvp)
+{
+  // set normal of faces
+  dReal *vtx = fvp->vtx;
+  unsigned int *p = fvp->polygons;
+  for(int i = 0; i < fvp->faceCount; ++i){
+    if(*p++ != 3) throw runtime_error("can't recalc not triangle convexfvp");
+    unsigned int idx[] = {*p++, *p++, *p++};
+    dReal v[] = {
+      vtx[idx[0] * 3 + 0], vtx[idx[0] * 3 + 1], vtx[idx[0] * 3 + 2],
+      vtx[idx[1] * 3 + 0], vtx[idx[1] * 3 + 1], vtx[idx[1] * 3 + 2],
+      vtx[idx[2] * 3 + 0], vtx[idx[2] * 3 + 1], vtx[idx[2] * 3 + 2]};
+    Normal4(&fvp->faces[i * 4], v);
+  }
+}
+
 void FreeTriMeshVI(trimeshvi *tmv)
 {
   if(!tmv) return;
@@ -144,17 +160,7 @@ convexfvp *CvtConvexFVPFromTriMeshVI(trimeshvi *tmv, dReal sc)
     *p++ = 3;
     for(int j = 0; j < 3; ++j) *p++ = (unsigned int)*s++;
   }
-  // set normal of faces
-  dReal *vtx = tmv->vtx;
-  s = tmv->indices;
-  for(int i = 0; i < fvp->faceCount; ++i){
-    dTriIndex idx[] = {*s++, *s++, *s++};
-    dReal v[] = {
-      vtx[idx[0] * 3 + 0], vtx[idx[0] * 3 + 1], vtx[idx[0] * 3 + 2],
-      vtx[idx[1] * 3 + 0], vtx[idx[1] * 3 + 1], vtx[idx[1] * 3 + 2],
-      vtx[idx[2] * 3 + 0], vtx[idx[2] * 3 + 1], vtx[idx[2] * 3 + 2]};
-    Normal4(&fvp->faces[i * 4], v);
-  }
+  RecalcFaces(fvp);
   return fvp;
 }
 
