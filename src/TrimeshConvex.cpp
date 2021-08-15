@@ -42,7 +42,7 @@ inline void Normal4(dReal *n, dReal *v) // n[4] = normal(v[9])
   Cross3(n, a, b);
   dReal r = sqrt(n[0] * n[0] + n[1] * n[1] + n[2] * n[2]);
   for(int j = 0; j < 3; ++j) n[j] /= r;
-  n[3] = 0.1;
+  n[3] = 0.333;
 }
 
 void FreeTriMeshVI(trimeshvi *tmv)
