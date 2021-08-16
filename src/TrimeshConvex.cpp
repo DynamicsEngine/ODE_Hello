@@ -29,14 +29,14 @@ void SetScaleLimit(dReal sclim)
 }
 
 // same as void dCROSS(c, =, a, b);
-inline void Cross3(dReal *c, dReal *a, dReal *b) // c[3] = a[3] x b[3]
+void Cross3(dReal *c, dReal *a, dReal *b) // c[3] = a[3] x b[3]
 {
   c[0] = a[1] * b[2] - a[2] * b[1];
   c[1] = a[2] * b[0] - a[0] * b[2];
   c[2] = a[0] * b[1] - a[1] * b[0];
 }
 
-inline void Normal4(dReal *n, dReal *v) // n[4] = normal(v[9])
+void Normal4(dReal *n, dReal *v) // n[4] = normal(v[9])
 {
   dReal a[] = {v[3] - v[0], v[4] - v[1], v[5] - v[2]};
   dReal b[] = {v[6] - v[0], v[7] - v[1], v[8] - v[2]};
@@ -45,13 +45,7 @@ inline void Normal4(dReal *n, dReal *v) // n[4] = normal(v[9])
   dReal r = sqrt(n[0] * n[0] + n[1] * n[1] + n[2] * n[2]);
   for(int j = 0; j < 3; ++j) n[j] /= r;
   // plane n[0]vx + n[1]vy + n[2]vz = n[3]
-  for(int j = 0; j < 3; ++j)
-    if(v[j * 3 + 0] != 0 || v[j * 3 + 1] != 0 || v[j * 3 + 2] != 0){
-      n[3] = dDot(n, &v[j * 3], 3);
-      return;
-    }
-  n[3] = 1.0;
-  throw runtime_error("normal dot v(0, 0, 0)");
+  n[3] = dDot(n, v, 3);
 }
 
 void RecalcFaces(convexfvp *fvp)

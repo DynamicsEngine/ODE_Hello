@@ -36,6 +36,8 @@ struct metaconvex {
 
 extern void SetScaleLimit(dReal sclim);
 
+extern void Cross3(dReal *c, dReal *a, dReal *b); // c[3] = a[3] x b[3]
+extern void Normal4(dReal *n, dReal *v); // n[4] = normal(v[9])
 extern void RecalcFaces(convexfvp *fvp);
 
 extern void FreeTriMeshVI(trimeshvi *tmv);
