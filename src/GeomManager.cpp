@@ -73,7 +73,7 @@ void DestroyObjects()
 
 void DrawObjects(int ws)
 {
-  dsSetTexture(DS_WOOD); // DS_SKY DS_GROUND DS_CHECKERED
+  dsSetTexture(DS_WOOD); // enum DS_NONE DS_WOOD DS_CHECKERED DS_GROUND DS_SKY
 
   for(auto it = geom_body_order.begin(); it != geom_body_order.end(); ++it)
     for(dGeomID g = dBodyGetFirstGeom(*it); g; g = dBodyGetNextGeom(g))

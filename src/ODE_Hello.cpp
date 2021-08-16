@@ -18,7 +18,7 @@
 
 using namespace std;
 
-#define TEX_RES "C:/ode-0.16.2/drawstuff/textures"
+#define TEX_RES "./textures"
 
 #define WIDTH 640
 #define HEIGHT 480
