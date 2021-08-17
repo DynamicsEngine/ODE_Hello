@@ -537,7 +537,7 @@ int main(int ac, char **av)
   ground = dCreatePlane(space, 0, 0, 1, 0);
 
   for(int i = 0; i < A_SIZE(palette); ++i){
-    material[i]->texID = DS_WOOD; // enum DS_NONE _WOOD _CHECKERED _GROUND _SKY
+    material[i]->texID = 7; // DS_NONE _WOOD _CHECKERED _GROUND _SKY or map.txt
     material[i]->colour = palette[i];
   }
 

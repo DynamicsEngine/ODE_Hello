@@ -19,6 +19,8 @@
 					<Add option="-DdIDEDOUBLE" />
 					<Add option="-DCCD_IDEDOUBLE" />
 					<Add option="-DWIN32" />
+					<Add option="-DdTRIMESH_ENABLED" />
+					<Add option="-DdTRIMESH_OPCODE" />
 					<Add directory="C:/ode-0.16.2/include" />
 					<Add directory="C:/ode-0.16.2/ode/src" />
 					<Add directory="include" />
@@ -54,6 +56,8 @@
 					<Add option="-DdIDEDOUBLE" />
 					<Add option="-DCCD_IDEDOUBLE" />
 					<Add option="-DWIN32" />
+					<Add option="-DdTRIMESH_ENABLED" />
+					<Add option="-DdTRIMESH_OPCODE" />
 					<Add directory="C:/ode-0.16.2/include" />
 					<Add directory="C:/ode-0.16.2/ode/src" />
 					<Add directory="include" />

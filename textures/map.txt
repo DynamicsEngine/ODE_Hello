@@ -1,0 +1,8 @@
+7
+wood.ppm
+checkered.ppm
+ground.ppm
+sky.ppm
+custom_V.ppm
+custom_H.ppm
+custom_R.ppm
