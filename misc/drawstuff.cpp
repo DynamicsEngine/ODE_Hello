@@ -888,6 +888,7 @@ static Texture *ground_texture = 0;
 static Texture *wood_texture = 0;
 static Texture *checkered_texture = 0;
 
+static int texture_nload = 0;
 static const int texture_max = 32; // minimum 4
 static Texture *texture[texture_max+1]; // +1 since index 0 is not used
 
@@ -901,7 +902,7 @@ static void load_map(const char *delim, const char *prefix)
   strcat(s, delim);
   strcat(s, "map.txt");
   FILE *fp = fopen(s, "rb");
-  if(!fp){ fprintf(stderr, "can't load textures: %s\n", s); return; }
+  if(!fp) dsError("can't load textures: %s\n", s);
   char *buf = (char*) alloca (llen);
   int nfiles = 0, n = 0;
   while(fgets(buf, llen, fp)){
@@ -918,14 +919,13 @@ static void load_map(const char *delim, const char *prefix)
       strcat(s, delim);
       strcat(s, buf);
       texture[n] = new Texture(s);
+      texture_nload = n;
     }
     ++n;
   }
   fclose(fp);
-  if(nfiles > texture_max || n > texture_max + 1 || n > nfiles + 1){
-    fprintf(stderr, "too many textures: %s\n", s);
-    return;
-  }
+  if(nfiles > texture_max || n > texture_max + 1 || n > nfiles + 1)
+    dsError("too many textures: %s\n", s);
 
   wood_texture = texture[DS_WOOD]; // must be 1
   checkered_texture = texture[DS_CHECKERED]; // must be 2
@@ -959,6 +959,7 @@ void dsStopGraphics()
   for(int i = 0; i <= texture_max; ++i){
     if(texture[i]){ delete texture[i]; texture[i] = 0; }
   }
+  texture_nload = 0;
   sky_texture = 0;
   ground_texture = 0;
   wood_texture = 0;
@@ -1342,6 +1343,8 @@ extern "C" void dsGetViewpoint (float xyz[3], float hpr[3])
 extern "C" void dsSetTexture (int texture_number)
 {
   if (current_state != 2) dsError ("drawing function called outside simulation loop");
+  if(texture_number > texture_nload)
+    dsError("texture number %d > loaded %d", texture_number, texture_nload);
   tnum = texture_number;
 }
 
