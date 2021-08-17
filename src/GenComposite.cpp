@@ -72,8 +72,8 @@ dBodyID CreateComposite(dWorldID world, dSpaceID space,
       break;
     }
     dGeomTransformSetGeom(gtrans, gsub);
-    // MapGeomColour(gtrans, mc[j].colour); // trans will not be shown
-    MapGeomColour(gsub, mc[j].colour);
+    // MapGeomMaterial(gtrans, mc[j].cm); // trans will not be shown
+    MapGeomMaterial(gsub, mc[j].cm);
     dReal *o = mc[j].offset;
     gto.insert(gto.begin(), gtrans); // first <-> last gto.push_back(gtrans);
     gts.insert(make_pair(gtrans, make_pair(gsub, o)));
@@ -110,7 +110,7 @@ dBodyID CreateSphere(dWorldID world, dSpaceID space,
   dBodySetMass(b, &mass);
   dGeomID geom = dCreateSphere(space, s->r);
   dGeomSetBody(geom, b);
-  MapGeomColour(geom, s->colour);
+  MapGeomMaterial(geom, s->cm);
   return MapBody(key, OrderBody(b, 0));
 }
 
@@ -124,6 +124,6 @@ dBodyID CreatePlane(dWorldID world, dSpaceID space,
   dBodySetMass(b, &mass);
   dGeomID geom = dCreatePlane(space, p->v[0], p->v[1], p->v[2], p->v[3]);
   dGeomSetBody(geom, b);
-  MapGeomColour(geom, p->colour);
+  MapGeomMaterial(geom, p->cm);
   return MapBody(key, OrderBody(b, 0));
 }

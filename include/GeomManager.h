@@ -5,8 +5,9 @@
 #ifndef __GEOMMANAGER_H__
 #define __GEOMMANAGER_H__
 
+extern dGeomID MapGeomTriMesh(dGeomID geom, trimeshvi *tmv);
 extern dGeomID MapGeomConvex(dGeomID geom, convexfvp *fvp);
-extern dGeomID MapGeomColour(dGeomID geom, const dReal *colour);
+extern dGeomID MapGeomMaterial(dGeomID geom, cmaterial *cm);
 extern dBodyID MapBody(const char *key, dBodyID body);
 extern dBodyID FindBody(const char *key);
 extern dBodyID OrderBody(dBodyID body, int pos);

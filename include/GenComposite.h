@@ -7,14 +7,14 @@
 
 struct metasphere {
   dReal r, m, gBounce;
-  dReal *colour;
+  cmaterial *cm;
 };
 
 struct metaplane {
   dVector4 v;
   dVector3 lxyz;
   dReal dm;
-  dReal *colour;
+  cmaterial *cm;
 };
 
 struct metacomposite {
@@ -24,7 +24,7 @@ struct metacomposite {
   dVector4 params;
   dQuaternion q;
   void *v; // trimeshvi or convexfvp
-  dReal *colour;
+  cmaterial *cm;
 };
 
 extern dBodyID CreateComposite(dWorldID world, dSpaceID space,

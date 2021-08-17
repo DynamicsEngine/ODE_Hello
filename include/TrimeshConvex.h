@@ -7,6 +7,11 @@
 
 #define A_SIZE(a) (sizeof(a) / sizeof(a[0]))
 
+struct cmaterial {
+  int texID;
+  dReal *colour;
+};
+
 struct trimeshvi {
   unsigned int vtxCount;
   dReal *vtx;
@@ -25,13 +30,13 @@ struct convexfvp {
 struct metatrimesh {
   dReal density;
   trimeshvi *tmv;
-  dReal *colour;
+  cmaterial *cm;
 };
 
 struct metaconvex {
   dReal density;
   convexfvp *fvp;
-  dReal *colour;
+  cmaterial *cm;
 };
 
 extern void SetScaleLimit(dReal sclim);

@@ -138,7 +138,7 @@ metatrimesh *CvtMetaTriMeshFromConvex(metaconvex *mc, dReal sc)
   if(!mt) throw runtime_error("can't create metatrimesh cvt");
   mt->density = mc->density;
   mt->tmv = CvtTriMeshVIFromConvexFVP(mc->fvp, sc);
-  mt->colour = mc->colour;
+  mt->cm = mc->cm;
   return mt;
 }
 
@@ -173,7 +173,7 @@ metaconvex *CvtMetaConvexFromTriMesh(metatrimesh *mt, dReal sc)
   if(!mc) throw runtime_error("can't create metaconvex cvt");
   mc->density = mt->density;
   mc->fvp = CvtConvexFVPFromTriMeshVI(mt->tmv, sc);
-  mc->colour = mt->colour;
+  mc->cm = mt->cm;
   return mc;
 }
 
@@ -220,7 +220,7 @@ metatrimesh *CopyMetaTriMesh(
   }
   dst->density = src->density;
   dst->tmv = CopyTriMeshVI(create ? NULL : dst->tmv, src->tmv, sc);
-  dst->colour = src->colour;
+  dst->cm = src->cm;
   return dst;
 }
 
@@ -238,7 +238,7 @@ dGeomID CreateGeomTrimeshFromVI(dSpaceID space, trimeshvi *tmv)
 #else
   dGeomSetData(geom, tmd);
 #endif
-  return geom;
+  return MapGeomTriMesh(geom, tmv);
 }
 
 dBodyID CreateTrimeshFromVI(dWorldID world, dSpaceID space,
@@ -255,7 +255,7 @@ dBodyID CreateTrimeshFromVI(dWorldID world, dSpaceID space,
   dBodyID b = dBodyCreate(world);
   dBodySetMass(b, &mass);
   dGeomSetBody(geom, b);
-  MapGeomColour(geom, mt->colour);
+  MapGeomMaterial(geom, mt->cm);
   return MapBody(key, OrderBody(b, 0));
 }
 
@@ -313,7 +313,7 @@ metaconvex *CopyMetaConvex(
   }
   dst->density = src->density;
   dst->fvp = CopyConvexFVP(create ? NULL : dst->fvp, src->fvp, sc);
-  dst->colour = src->colour;
+  dst->cm = src->cm;
   return dst;
 }
 
@@ -321,8 +321,7 @@ dGeomID CreateGeomConvexFromFVP(dSpaceID space, convexfvp *fvp)
 {
   dGeomID geom = dCreateConvex(space,
     fvp->faces, fvp->faceCount, fvp->vtx, fvp->vtxCount, fvp->polygons);
-  MapGeomConvex(geom, fvp);
-  return geom;
+  return MapGeomConvex(geom, fvp);
 }
 
 dBodyID CreateConvexFromFVP(dWorldID world, dSpaceID space,
@@ -339,6 +338,6 @@ dBodyID CreateConvexFromFVP(dWorldID world, dSpaceID space,
   dBodyID b = dBodyCreate(world);
   dBodySetMass(b, &mass);
   dGeomSetBody(geom, b);
-  MapGeomColour(geom, mc->colour);
+  MapGeomMaterial(geom, mc->cm);
   return MapBody(key, OrderBody(b, 0));
 }

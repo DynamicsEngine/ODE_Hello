@@ -89,47 +89,49 @@ dVector4 palette[] = {
   {0.2, 1.0, 0.8, 0.4} // plane, slope(Cylinder), tmball(Sphere)
 };
 
-metatrimesh mtbunny = {DENSITY, &tmvBunny, palette[10]};
+cmaterial material[A_SIZE(palette)][1]; // a[][1] to use like array of pointer
+
+metatrimesh mtbunny = {DENSITY, &tmvBunny, material[10]};
 shared_ptr<metatrimesh> mtbunny2;
 shared_ptr<metatrimesh> mtbunny3;
-metaconvex mcbunny = {DENSITY, &fvpBunny, palette[11]};
+metaconvex mcbunny = {DENSITY, &fvpBunny, material[11]};
 shared_ptr<metaconvex> mcbunny2;
 shared_ptr<metaconvex> mcbunny3;
 
 metacomposite tmball[] = { // trimesh, Rout
-  {dTriMeshClass, DENSITY * 0.1, {0, 0, 0}, {}, {}, &tmvBunny, palette[3]},
-  {dSphereClass, DENSITY * 0.1, {0, 0, 0}, {1.2}, {}, NULL, palette[29]}};
+  {dTriMeshClass, DENSITY * 0.1, {0, 0, 0}, {}, {}, &tmvBunny, material[3]},
+  {dSphereClass, DENSITY * 0.1, {0, 0, 0}, {1.2}, {}, NULL, material[29]}};
 
 metacomposite slope[] = { // lxyz, RL
-  {dBoxClass, DENSITY, {0, 0, 0}, {6.0, 0.1, 8.0}, {}, NULL, palette[3]},
-  {dCylinderClass, DENSITY, {-3.0, 0, 0}, {1.0, 2.0}, {}, NULL, palette[29]}};
+  {dBoxClass, DENSITY, {0, 0, 0}, {6.0, 0.1, 8.0}, {}, NULL, material[3]},
+  {dCylinderClass, DENSITY, {-3.0, 0, 0}, {1.0, 2.0}, {}, NULL, material[29]}};
 
-metasphere apple = {0.2, 1.0, 1.0, palette[0]};
-metasphere ball = {0.1, 1.0, 0.5, palette[1]};
-metasphere roll = {0.2, 1.0, 0.8, palette[2]};
+metasphere apple = {0.2, 1.0, 1.0, material[0]};
+metasphere ball = {0.1, 1.0, 0.5, material[1]};
+metasphere roll = {0.2, 1.0, 0.8, material[2]};
 
 metacomposite uball[] = { // Rin, Rout
-  {dSphereClass, DENSITY, {0.05, 0, 0}, {0.1}, {}, NULL, palette[14]},
-  {dSphereClass, DENSITY, {0, 0, 0}, {0.2}, {}, NULL, palette[15]}};
+  {dSphereClass, DENSITY, {0.05, 0, 0}, {0.1}, {}, NULL, material[14]},
+  {dSphereClass, DENSITY, {0, 0, 0}, {0.2}, {}, NULL, material[15]}};
 metacomposite luball[] = { // Rin, Rout
-  {dSphereClass, DENSITY, {0.05, 0, 0}, {0.1}, {}, NULL, palette[16]},
-  {dSphereClass, DENSITY, {0, 0, 0}, {0.2}, {}, NULL, palette[17]}};
+  {dSphereClass, DENSITY, {0.05, 0, 0}, {0.1}, {}, NULL, material[16]},
+  {dSphereClass, DENSITY, {0, 0, 0}, {0.2}, {}, NULL, material[17]}};
 metacomposite ruball[] = { // Rin, Rout
-  {dSphereClass, DENSITY, {0.05, 0, 0}, {0.1}, {}, NULL, palette[18]},
-  {dSphereClass, DENSITY, {0, 0, 0}, {0.2}, {}, NULL, palette[19]}};
+  {dSphereClass, DENSITY, {0.05, 0, 0}, {0.1}, {}, NULL, material[18]},
+  {dSphereClass, DENSITY, {0, 0, 0}, {0.2}, {}, NULL, material[19]}};
 
 metacomposite vball[] = { // lxyz, RL, Rout
-  {dBoxClass, DENSITY, {0.05, 0, 0}, {0.2, 0.1, 0.1}, {}, NULL, palette[20]},
-  {dCapsuleClass, DENSITY, {0, 0, 0.03}, {0.05, 0.2}, {}, NULL, palette[21]},
-  {dSphereClass, DENSITY, {0, 0, 0}, {0.2}, {}, NULL, palette[22]}};
+  {dBoxClass, DENSITY, {0.05, 0, 0}, {0.2, 0.1, 0.1}, {}, NULL, material[20]},
+  {dCapsuleClass, DENSITY, {0, 0, 0.03}, {0.05, 0.2}, {}, NULL, material[21]},
+  {dSphereClass, DENSITY, {0, 0, 0}, {0.2}, {}, NULL, material[22]}};
 metacomposite lvball[] = { // lxyz, RL, Rout
-  {dBoxClass, DENSITY, {0.05, 0, 0}, {0.2, 0.1, 0.1}, {}, NULL, palette[23]},
-  {dCapsuleClass, DENSITY, {0, 0, 0.03}, {0.05, 0.2}, {}, NULL, palette[24]},
-  {dSphereClass, DENSITY, {0, 0, 0}, {0.2}, {}, NULL, palette[25]}};
+  {dBoxClass, DENSITY, {0.05, 0, 0}, {0.2, 0.1, 0.1}, {}, NULL, material[23]},
+  {dCapsuleClass, DENSITY, {0, 0, 0.03}, {0.05, 0.2}, {}, NULL, material[24]},
+  {dSphereClass, DENSITY, {0, 0, 0}, {0.2}, {}, NULL, material[25]}};
 metacomposite rvball[] = { // lxyz, RL, Rout
-  {dBoxClass, DENSITY, {0.05, 0, 0}, {0.2, 0.1, 0.1}, {}, NULL, palette[26]},
-  {dCapsuleClass, DENSITY, {0, 0, 0.03}, {0.05, 0.2}, {}, NULL, palette[27]},
-  {dSphereClass, DENSITY, {0, 0, 0}, {0.2}, {}, NULL, palette[28]}};
+  {dBoxClass, DENSITY, {0.05, 0, 0}, {0.2, 0.1, 0.1}, {}, NULL, material[26]},
+  {dCapsuleClass, DENSITY, {0, 0, 0.03}, {0.05, 0.2}, {}, NULL, material[27]},
+  {dSphereClass, DENSITY, {0, 0, 0}, {0.2}, {}, NULL, material[28]}};
 
 void CreateObjects(dWorldID world);
 
@@ -241,17 +243,17 @@ cout << "RV ball" << endl;
   dBodyEnable(rv);
 
 cout << "TmTetra" << endl;
-  metatrimesh mttetra = {DENSITY, &tmvTetra, palette[4]};
+  metatrimesh mttetra = {DENSITY, &tmvTetra, material[4]};
   dBodyID t = CreateTrimeshFromVI(world, space, "tmtetra", &mttetra);
   dBodySetPosition(t, 0.0, -1.5, 0.5);
   dBodyEnable(t); // dBodyDisable(t);
 cout << "Tetra" << endl;
-  metaconvex mctetra = {DENSITY, &fvpTetra, palette[5]};
+  metaconvex mctetra = {DENSITY, &fvpTetra, material[5]};
   dBodyID b = CreateConvexFromFVP(world, space, "tetra", &mctetra);
   dBodySetPosition(b, 0.0, 1.5, 0.5);
   dBodyEnable(b);
 cout << "TmCube" << endl;
-  metatrimesh mtcube = {DENSITY, &tmvCube, palette[6]};
+  metatrimesh mtcube = {DENSITY, &tmvCube, material[6]};
   dBodyID e = CreateTrimeshFromVI(world, space, "tmcube", &mtcube);
   dBodySetPosition(e, -1.5, -3.0, 0.5);
   if(1){
@@ -261,7 +263,7 @@ cout << "TmCube" << endl;
   }
   dBodyEnable(e);
 cout << "Cube" << endl;
-  metaconvex mccube = {DENSITY, &fvpCube, palette[7]};
+  metaconvex mccube = {DENSITY, &fvpCube, material[7]};
   dBodyID c = CreateConvexFromFVP(world, space, "cube", &mccube);
   dBodySetPosition(c, -1.5, -1.5, 0.5);
   if(1){
@@ -271,12 +273,12 @@ cout << "Cube" << endl;
   }
   dBodyEnable(c);
 cout << "TmIcosahedron" << endl;
-  metatrimesh mticosahedron = {DENSITY, &tmvIcosahedron, palette[8]};
+  metatrimesh mticosahedron = {DENSITY, &tmvIcosahedron, material[8]};
   dBodyID h = CreateTrimeshFromVI(world, space, "tmicosahedron", &mticosahedron);
   dBodySetPosition(h, -1.5, 3.0, 0.5);
   dBodyEnable(h);
 cout << "Icosahedron" << endl;
-  metaconvex mcicosahedron = {DENSITY, &fvpIcosahedron, palette[9]};
+  metaconvex mcicosahedron = {DENSITY, &fvpIcosahedron, material[9]};
   dBodyID i = CreateConvexFromFVP(world, space, "icosahedron", &mcicosahedron);
   dBodySetPosition(i, -1.5, 1.5, 0.5);
   dBodyEnable(i);
@@ -310,18 +312,18 @@ cout << "Bunny" << endl;
   dBodySetPosition(r, -3.0, -1.5, 2.0);
   dBodyEnable(r);
 cout << "TmCustom" << endl;
-  metatrimesh mtcustom = {DENSITY, &tmvCustom, palette[12]};
+  metatrimesh mtcustom = {DENSITY, &tmvCustom, material[12]};
   dBodyID d = CreateTrimeshFromVI(world, space, "tmcustom", &mtcustom);
   dBodySetPosition(d, -3.0, 3.0, 0.5);
   dBodyEnable(d);
 cout << "Custom" << endl;
-  metaconvex mccustom = {DENSITY, &fvpCustom, palette[13]};
+  metaconvex mccustom = {DENSITY, &fvpCustom, material[13]};
   dBodyID o = CreateConvexFromFVP(world, space, "custom", &mccustom);
   dBodySetPosition(o, -3.0, 1.5, 0.5);
   dBodyEnable(o);
 cout << "Plane" << endl;
   if(0){
-    metaplane plane = {{0, 0, 1, 0}, {10.0, 10.0, 0.05}, DENSITY, palette[29]};
+    metaplane plane = {{0, 0, 1, 0}, {10.0, 10.0, 0.05}, DENSITY, material[29]};
     dBodyID p = CreatePlane(world, space, "plane", &plane);
     dBodySetPosition(p, 0.0, 0.0, 0.05);
     dMatrix3 rot;
@@ -533,6 +535,11 @@ int main(int ac, char **av)
   dWorldSetGravity(world, 0, 0, -0.2); // -9.8
   space = dHashSpaceCreate(0);
   ground = dCreatePlane(space, 0, 0, 1, 0);
+
+  for(int i = 0; i < A_SIZE(palette); ++i){
+    material[i]->texID = DS_WOOD; // enum DS_NONE _WOOD _CHECKERED _GROUND _SKY
+    material[i]->colour = palette[i];
+  }
 
   mtbunny2 = shared_ptr<metatrimesh>(CopyMetaTriMesh(NULL, &mtbunny, 0.2),
     [](metatrimesh *p){ FreeMetaTriMesh(p); });

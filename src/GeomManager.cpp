@@ -13,10 +13,17 @@
 
 using namespace std;
 
+static unordered_map<dGeomID, trimeshvi *> geom_trimesh_manager;
 static unordered_map<dGeomID, convexfvp *> geom_convex_manager;
-static unordered_map<dGeomID, const dReal *> geom_colour_manager;
+static unordered_map<dGeomID, cmaterial *> geom_material_manager;
 static unordered_map<string, dBodyID> geom_body_manager;
 static deque<dBodyID> geom_body_order;
+
+dGeomID MapGeomTriMesh(dGeomID geom, trimeshvi *tmv)
+{
+  geom_trimesh_manager.insert(make_pair(geom, tmv));
+  return geom;
+}
 
 dGeomID MapGeomConvex(dGeomID geom, convexfvp *fvp)
 {
@@ -24,9 +31,9 @@ dGeomID MapGeomConvex(dGeomID geom, convexfvp *fvp)
   return geom;
 }
 
-dGeomID MapGeomColour(dGeomID geom, const dReal *colour)
+dGeomID MapGeomMaterial(dGeomID geom, cmaterial *cm)
 {
-  geom_colour_manager.insert(make_pair(geom, colour));
+  geom_material_manager.insert(make_pair(geom, cm));
   return geom;
 }
 
@@ -67,14 +74,13 @@ void DestroyObjects()
 
   geom_body_order.clear();
   geom_body_manager.clear();
-  geom_colour_manager.clear();
+  geom_material_manager.clear();
   geom_convex_manager.clear();
+  geom_trimesh_manager.clear();
 }
 
 void DrawObjects(int ws)
 {
-  dsSetTexture(DS_WOOD); // enum DS_NONE DS_WOOD DS_CHECKERED DS_GROUND DS_SKY
-
   for(auto it = geom_body_order.begin(); it != geom_body_order.end(); ++it)
     for(dGeomID g = dBodyGetFirstGeom(*it); g; g = dBodyGetNextGeom(g))
       DrawGeom(g, NULL, NULL, ws);
@@ -85,8 +91,12 @@ void DrawGeom(dGeomID geom, const dReal *pos, const dReal *rot, int ws)
   if(!geom) return;
   if(!pos) pos = dGeomGetPosition(geom);
   if(!rot) rot = dGeomGetRotation(geom);
-  const dReal *colour = geom_colour_manager[geom];
-  if(colour) dsSetColorAlpha(colour[0], colour[1], colour[2], colour[3]);
+  cmaterial *cm = geom_material_manager[geom];
+  if(cm){
+    dsSetTexture(cm->texID);
+    const dReal *colour = cm->colour;
+    if(colour) dsSetColorAlpha(colour[0], colour[1], colour[2], colour[3]);
+  }
   int clsID = dGeomGetClass(geom);
   switch(clsID){
   case dSphereClass: { // 0
@@ -135,6 +145,7 @@ void DrawGeom(dGeomID geom, const dReal *pos, const dReal *rot, int ws)
     DrawGeom(gt, rpos, rrot, ws);
   } break;
   case dTriMeshClass: { // 8
+#if 0
     int is_composite = (dGeomGetSpace(geom) == 0);
     dVector3 tpos = {0.0, 0.0, 0.0};
     dMatrix3 trot;
@@ -146,6 +157,22 @@ void DrawGeom(dGeomID geom, const dReal *pos, const dReal *rot, int ws)
       if(!is_composite) dsDrawTriangleD(tpos, trot, v0, v1, v2, ws); // top
       else dsDrawTriangleD(pos, rot, v0, v1, v2, ws); // in the dTransformClass
     }
+#else
+    trimeshvi *tmv = geom_trimesh_manager[geom];
+    if(!tmv) printf("not managed trimesh in DrawGeom (geomID: %p)\n", geom);
+    else{
+      dReal *vtx = tmv->vtx;
+      dTriIndex *p = tmv->indices;
+      for(int i = 0; i < tmv->indexCount / 3; ++i){
+        dTriIndex idx[] = {*p++, *p++, *p++};
+        dReal v[] = {
+          vtx[idx[0] * 3 + 0], vtx[idx[0] * 3 + 1], vtx[idx[0] * 3 + 2],
+          vtx[idx[1] * 3 + 0], vtx[idx[1] * 3 + 1], vtx[idx[1] * 3 + 2],
+          vtx[idx[2] * 3 + 0], vtx[idx[2] * 3 + 1], vtx[idx[2] * 3 + 2]};
+        dsDrawTriangleD(pos, rot, &v[0], &v[3], &v[6], ws);
+      }
+    }
+#endif
   } break;
 #if 0
   case dHeightfieldClass: { // 9
