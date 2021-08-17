@@ -536,10 +536,13 @@ int main(int ac, char **av)
   space = dHashSpaceCreate(0);
   ground = dCreatePlane(space, 0, 0, 1, 0);
 
+  int ids[] = {5, 6, 7, 8};
   for(int i = 0; i < A_SIZE(palette); ++i){
-    material[i]->texID = 7; // DS_NONE _WOOD _CHECKERED _GROUND _SKY or map.txt
+    // texID (enum DS_NONE _WOOD _CHECKERED _GROUND _SKY) or >= 5 from map.txt
+    material[i]->texID = ids[i % A_SIZE(ids)];
     material[i]->colour = palette[i];
   }
+  material[3]->texID = 7;
 
   mtbunny2 = shared_ptr<metatrimesh>(CopyMetaTriMesh(NULL, &mtbunny, 0.2),
     [](metatrimesh *p){ FreeMetaTriMesh(p); });

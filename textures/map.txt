@@ -1,8 +1,9 @@
-7
+8
 wood.ppm
 checkered.ppm
 ground.ppm
 sky.ppm
 custom_V.ppm
 custom_H.ppm
+custom_L.ppm
 custom_R.ppm
