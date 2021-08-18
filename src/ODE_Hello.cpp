@@ -499,6 +499,16 @@ void setParameters()
 
 void simLoop(int pause)
 {
+  if(1){
+    static int framecount = 0;
+    static double spf = 0.0;
+    spf += dsElapsedTime();
+    if(++framecount == 120){
+      printf("%f\n", framecount / spf);
+      framecount = 0;
+      spf = 0.0;
+    }
+  }
   if(!pause){
     dSpaceCollide(space, 0, nearCallback);
     // skip // append fource
