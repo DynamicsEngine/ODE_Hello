@@ -99,39 +99,39 @@ shared_ptr<metaconvex> mcbunny2;
 shared_ptr<metaconvex> mcbunny3;
 
 metacomposite tmball[] = { // trimesh, Rout
-  {dTriMeshClass, DENSITY * 0.1, {0, 0, 0}, {}, {}, &tmvBunny, material[3]},
-  {dSphereClass, DENSITY * 0.1, {0, 0, 0}, {1.2}, {}, NULL, material[29]}};
+  {dTriMeshClass, DENSITY * 0.1, {0, 0, 0}, {}, QI, &tmvBunny, material[3]},
+  {dSphereClass, DENSITY * 0.1, {0, 0, 0}, {1.2}, QI, NULL, material[29]}};
 
 metacomposite slope[] = { // lxyz, RL
-  {dBoxClass, DENSITY, {0, 0, 0}, {6.0, 0.1, 8.0}, {}, NULL, material[3]},
-  {dCylinderClass, DENSITY, {-3.0, 0, 0}, {1.0, 2.0}, {}, NULL, material[29]}};
+  {dBoxClass, DENSITY, {0, 0, 0}, {6.0, 0.1, 8.0}, QI, NULL, material[3]},
+  {dCylinderClass, DENSITY, {-3.0, 0, 0}, {1.0, 2.0}, QI, NULL, material[29]}};
 
 metasphere apple = {0.2, 1.0, 1.0, material[0]};
 metasphere ball = {0.1, 1.0, 0.5, material[1]};
 metasphere roll = {0.2, 1.0, 0.8, material[2]};
 
 metacomposite uball[] = { // Rin, Rout
-  {dSphereClass, DENSITY, {0.05, 0, 0}, {0.1}, {}, NULL, material[14]},
-  {dSphereClass, DENSITY, {0, 0, 0}, {0.2}, {}, NULL, material[15]}};
+  {dSphereClass, DENSITY, {0.05, 0, 0}, {0.1}, QI, NULL, material[14]},
+  {dSphereClass, DENSITY, {0, 0, 0}, {0.2}, QI, NULL, material[15]}};
 metacomposite luball[] = { // Rin, Rout
-  {dSphereClass, DENSITY, {0.05, 0, 0}, {0.1}, {}, NULL, material[16]},
-  {dSphereClass, DENSITY, {0, 0, 0}, {0.2}, {}, NULL, material[17]}};
+  {dSphereClass, DENSITY, {0.05, 0, 0}, {0.1}, QI, NULL, material[16]},
+  {dSphereClass, DENSITY, {0, 0, 0}, {0.2}, QI, NULL, material[17]}};
 metacomposite ruball[] = { // Rin, Rout
-  {dSphereClass, DENSITY, {0.05, 0, 0}, {0.1}, {}, NULL, material[18]},
-  {dSphereClass, DENSITY, {0, 0, 0}, {0.2}, {}, NULL, material[19]}};
+  {dSphereClass, DENSITY, {0.05, 0, 0}, {0.1}, QI, NULL, material[18]},
+  {dSphereClass, DENSITY, {0, 0, 0}, {0.2}, QI, NULL, material[19]}};
 
 metacomposite vball[] = { // lxyz, RL, Rout
-  {dBoxClass, DENSITY, {0.05, 0, 0}, {0.2, 0.1, 0.1}, {}, NULL, material[20]},
-  {dCapsuleClass, DENSITY, {0, 0, 0.03}, {0.05, 0.2}, {}, NULL, material[21]},
-  {dSphereClass, DENSITY, {0, 0, 0}, {0.2}, {}, NULL, material[22]}};
+  {dBoxClass, DENSITY, {0.05, 0, 0}, {0.2, 0.1, 0.1}, QI, NULL, material[20]},
+  {dCapsuleClass, DENSITY, {0, 0, 0.03}, {0.05, 0.2}, QI, NULL, material[21]},
+  {dSphereClass, DENSITY, {0, 0, 0}, {0.2}, QI, NULL, material[22]}};
 metacomposite lvball[] = { // lxyz, RL, Rout
-  {dBoxClass, DENSITY, {0.05, 0, 0}, {0.2, 0.1, 0.1}, {}, NULL, material[23]},
-  {dCapsuleClass, DENSITY, {0, 0, 0.03}, {0.05, 0.2}, {}, NULL, material[24]},
-  {dSphereClass, DENSITY, {0, 0, 0}, {0.2}, {}, NULL, material[25]}};
+  {dBoxClass, DENSITY, {0.05, 0, 0}, {0.2, 0.1, 0.1}, QI, NULL, material[23]},
+  {dCapsuleClass, DENSITY, {0, 0, 0.03}, {0.05, 0.2}, QI, NULL, material[24]},
+  {dSphereClass, DENSITY, {0, 0, 0}, {0.2}, QI, NULL, material[25]}};
 metacomposite rvball[] = { // lxyz, RL, Rout
-  {dBoxClass, DENSITY, {0.05, 0, 0}, {0.2, 0.1, 0.1}, {}, NULL, material[26]},
-  {dCapsuleClass, DENSITY, {0, 0, 0.03}, {0.05, 0.2}, {}, NULL, material[27]},
-  {dSphereClass, DENSITY, {0, 0, 0}, {0.2}, {}, NULL, material[28]}};
+  {dBoxClass, DENSITY, {0.05, 0, 0}, {0.2, 0.1, 0.1}, QI, NULL, material[26]},
+  {dCapsuleClass, DENSITY, {0, 0, 0.03}, {0.05, 0.2}, QI, NULL, material[27]},
+  {dSphereClass, DENSITY, {0, 0, 0}, {0.2}, QI, NULL, material[28]}};
 
 void CreateObjects(dWorldID world);
 
@@ -499,16 +499,6 @@ void setParameters()
 
 void simLoop(int pause)
 {
-  if(1){
-    static int framecount = 0;
-    static double spf = 0.0;
-    spf += dsElapsedTime();
-    if(++framecount == 120){
-      printf("%f\n", framecount / spf);
-      framecount = 0;
-      spf = 0.0;
-    }
-  }
   if(!pause){
     dSpaceCollide(space, 0, nearCallback);
     // skip // append fource
@@ -518,6 +508,30 @@ void simLoop(int pause)
     dJointGroupEmpty(contactgroup);
   }
   DrawObjects(wire_solid);
+  if(1){
+    static char buf[80] = {0};
+    static int framecount = 0;
+    static double spf = 0.0;
+    spf += dsElapsedTime();
+    if(++framecount == 120){
+      sprintf(buf, "%5.2f", framecount / spf);
+      // printf("%s\n", buf);
+      framecount = 0;
+      spf = 0.0;
+    }
+    int len = strlen(buf);
+    for(int i = 0; i < len; ++i){
+      char b = buf[i];
+      int n = b == '.' ? -1 : (b - '0');
+      dsSetTexture(10 + n); // 9: [.] 10-19-20-25: [0-9-A-F] 26: [[R G] [B Y]]
+      dsSetColorAlpha(1.0, 1.0, 1.0, 0.4);
+      dVector3 lxyz = {1.0, 1.0, 1.0};
+      dVector3 pos = {0.5 - 6.0 + i, 0.5 + 1.0 + 0.6 * i, 0.5 + 2.0 - 0.4 * i};
+      dMatrix3 rot;
+      dRFromEulerAngles(rot, 0, -M_PI / 12, -M_PI / 4);
+      dsDrawBoxD(pos, rot, lxyz);
+    }
+  }
 }
 
 void drawStuffStart()

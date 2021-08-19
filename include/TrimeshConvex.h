@@ -5,6 +5,7 @@
 #ifndef __TRIMESHCONVEX_H__
 #define __TRIMESHCONVEX_H__
 
+#define QI {1.0, 0.0, 0.0, 0.0}
 #define A_SIZE(a) (sizeof(a) / sizeof(a[0]))
 
 struct cmaterial {

@@ -1,4 +1,4 @@
-8
+26
 wood.ppm
 checkered.ppm
 ground.ppm
@@ -7,3 +7,21 @@ custom_V.ppm
 custom_H.ppm
 custom_L.ppm
 custom_R.ppm
+custom_P.ppm
+custom_0.ppm
+custom_1.ppm
+custom_2.ppm
+custom_3.ppm
+custom_4.ppm
+custom_5.ppm
+custom_6.ppm
+custom_7.ppm
+custom_8.ppm
+custom_9.ppm
+custom_A.ppm
+custom_B.ppm
+custom_C.ppm
+custom_D.ppm
+custom_E.ppm
+custom_F.ppm
+custom.ppm
