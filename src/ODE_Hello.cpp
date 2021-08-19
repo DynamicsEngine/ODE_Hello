@@ -133,6 +133,20 @@ metacomposite rvball[] = { // lxyz, RL, Rout
   {dCapsuleClass, DENSITY, {0, 0, 0.03}, {0.05, 0.2}, QI, NULL, material[27]},
   {dSphereClass, DENSITY, {0, 0, 0}, {0.2}, QI, NULL, material[28]}};
 
+metacomposite ihball[] = { // lxyz, lxyz, lxyz, lxyz, Rout
+  {dBoxClass, DENSITY, {0.09, 0, 0}, {0.1, 0.1, 0.1}, QI, NULL, material[3]},
+  {dBoxClass, DENSITY, {0, 0, 0.09}, {0.1, 0.1, 0.1}, QI, NULL, material[3]},
+  {dBoxClass, DENSITY, {-0.09, 0, 0}, {0.1, 0.1, 0.1}, QI, NULL, material[3]},
+  {dBoxClass, DENSITY, {0, 0, -0.09}, {0.1, 0.1, 0.1}, QI, NULL, material[3]},
+  {dSphereClass, DENSITY, {0, 0, 0}, {0.2}, QI, NULL, material[29]}};
+
+metacomposite iiball[] = { // lxyz, lxyz, lxyz, lxyz, Rout
+  {dBoxClass, DENSITY, {0.05, 0, 0}, {0.1, 0.1, 0.1}, QI, NULL, material[3]},
+  {dBoxClass, DENSITY, {0, 0, 0.05}, {0.1, 0.1, 0.1}, QI, NULL, material[3]},
+  {dBoxClass, DENSITY, {-0.05, 0, 0}, {0.1, 0.1, 0.1}, QI, NULL, material[3]},
+  {dBoxClass, DENSITY, {0, 0, -0.05}, {0.1, 0.1, 0.1}, QI, NULL, material[3]},
+  {dSphereClass, DENSITY, {0, 0, 0}, {0.2}, QI, NULL, material[29]}};
+
 void CreateObjects(dWorldID world);
 
 dReal getgBounce(dGeomID id);
@@ -146,11 +160,11 @@ void simLoop(int pause);
 void drawStuffStart();
 void setDrawStuff(dsFunctions *fn);
 
-void CreateObjects(dWorldID world)
+void create_TmBall()
 {
-cout << "TmBall" << endl;
-  dBodyID w = CreateComposite(world, space, "tmball", tmball, A_SIZE(tmball));
-  dBodySetPosition(w, -14.0, -3.0, 3.0);
+  cout << "TmBall" << endl;
+  dBodyID b = CreateComposite(world, space, "tmball", tmball, A_SIZE(tmball));
+  dBodySetPosition(b, -14.0, -3.0, 3.0);
   if(1){
     dQuaternion o, p, q;
 #if 0
@@ -161,130 +175,209 @@ cout << "TmBall" << endl;
     dQSetIdentity(p);
 #endif
     dQMultiply0(o, p, q);
-    dBodySetQuaternion(w, o);
+    dBodySetQuaternion(b, o);
   }
-  dBodyEnable(w);
+  dBodyEnable(b);
+}
 
-cout << "Slope" << endl;
-  dBodyID s = CreateComposite(world, space, "slope", slope, A_SIZE(slope));
-  dBodySetPosition(s, -13.5, 0.0, 1.2);
+void create_Slope()
+{
+  cout << "Slope" << endl;
+  dBodyID b = CreateComposite(world, space, "slope", slope, A_SIZE(slope));
+  dBodySetPosition(b, -13.5, 0.0, 1.2);
   if(1){
     dQuaternion o, p, q;
     dQFromAxisAndAngle(q, 1, 0, 0, M_PI / 2);
     dQFromAxisAndAngle(p, 0, 1, 0, M_PI / 18);
     dQMultiply0(o, p, q);
-    dBodySetQuaternion(s, o);
+    dBodySetQuaternion(b, o);
   }
-  dBodyEnable(s); // dBodyDisable(s);
+  dBodyEnable(b); // dBodyDisable(s);
+}
 
-cout << "Sphere red" << endl;
-  dBodyID ba = CreateSphere(world, space, "apple", &apple);
-  dBodySetPosition(ba, -0.15, 0.31, 2.5); // x, y on the bunny
-  dBodyDisable(ba);
-cout << "Sphere blue" << endl;
-  dBodyID bb = CreateSphere(world, space, "ball", &ball);
-  dBodySetPosition(bb, 0.5, 0.0, ball.r);
-cout << "Sphere green" << endl;
-  dBodyID br = CreateSphere(world, space, "roll", &roll);
-  dBodySetPosition(br, -12.0, 0.0, 1.2); // on the slope
+void create_SphereApple()
+{
+  cout << "Sphere apple" << endl;
+  dBodyID b = CreateSphere(world, space, "apple", &apple);
+  dBodySetPosition(b, -0.15, 0.31, 2.5); // x, y on the bunny
+  dBodyDisable(b);
+}
 
-cout << "U ball" << endl;
-  dBodyID u = CreateComposite(world, space, "uball", uball, A_SIZE(uball));
-  dBodySetPosition(u, -12.0, 0.5, 1.2); // on the slope
-  dBodyEnable(u);
-cout << "LU ball" << endl;
-  dBodyID lu = CreateComposite(world, space, "luball", luball, A_SIZE(luball));
-  dBodySetPosition(lu, -12.0, 2.5, 1.2); // on the slope
+void create_SphereBall()
+{
+  cout << "Sphere ball" << endl;
+  dBodyID b = CreateSphere(world, space, "ball", &ball);
+  dBodySetPosition(b, 0.5, 0.0, ball.r);
+}
+
+void create_SphereRoll()
+{
+  cout << "Sphere roll" << endl;
+  dBodyID b = CreateSphere(world, space, "roll", &roll);
+  dBodySetPosition(b, -12.0, 0.0, 1.2); // on the slope
+}
+
+void create_UBall()
+{
+  cout << "U ball" << endl;
+  dBodyID b = CreateComposite(world, space, "uball", uball, A_SIZE(uball));
+  dBodySetPosition(b, -12.0, 0.5, 1.2); // on the slope
+  dBodyEnable(b);
+}
+
+void create_LUBall()
+{
+  cout << "LU ball" << endl;
+  dBodyID b = CreateComposite(world, space, "luball", luball, A_SIZE(luball));
+  dBodySetPosition(b, -12.0, 2.5, 1.2); // on the slope
   if(1){
     dQuaternion o, p, q;
     dQFromAxisAndAngle(q, 0, 0, 1, M_PI / 2);
     dQSetIdentity(p);
     dQMultiply0(o, p, q);
-    dBodySetQuaternion(lu, o);
+    dBodySetQuaternion(b, o);
   }
-  dBodyEnable(lu);
-cout << "RU ball" << endl;
-  dBodyID ru = CreateComposite(world, space, "ruball", ruball, A_SIZE(ruball));
-  dBodySetPosition(ru, -12.0, -0.5, 1.2); // on the slope
+  dBodyEnable(b);
+}
+
+void create_RUBall()
+{
+  cout << "RU ball" << endl;
+  dBodyID b = CreateComposite(world, space, "ruball", ruball, A_SIZE(ruball));
+  dBodySetPosition(b, -12.0, -0.5, 1.2); // on the slope
   if(1){
     dQuaternion o, p, q;
     dQFromAxisAndAngle(q, 0, 0, 1, -M_PI / 2);
     dQSetIdentity(p);
     dQMultiply0(o, p, q);
-    dBodySetQuaternion(ru, o);
+    dBodySetQuaternion(b, o);
   }
-  dBodyEnable(ru);
+  dBodyEnable(b);
+}
 
-cout << "V ball" << endl;
-  dBodyID v = CreateComposite(world, space, "vball", vball, A_SIZE(vball));
-  dBodySetPosition(v, -12.0, 1.5, 1.2); // on the slope
-  dBodyEnable(v);
-cout << "LV ball" << endl;
-  dBodyID lv = CreateComposite(world, space, "lvball", lvball, A_SIZE(lvball));
-  dBodySetPosition(lv, -12.0, 3.5, 1.2); // on the slope
+void create_VBall()
+{
+  cout << "V ball" << endl;
+  dBodyID b = CreateComposite(world, space, "vball", vball, A_SIZE(vball));
+  dBodySetPosition(b, -12.0, 1.5, 1.2); // on the slope
+  dBodyEnable(b);
+}
+
+void create_LVBall()
+{
+  cout << "LV ball" << endl;
+  dBodyID b = CreateComposite(world, space, "lvball", lvball, A_SIZE(lvball));
+  dBodySetPosition(b, -12.0, 3.5, 1.2); // on the slope
   if(1){
     dQuaternion o, p, q;
     dQFromAxisAndAngle(q, 0, 0, 1, M_PI / 2);
     dQSetIdentity(p);
     dQMultiply0(o, p, q);
-    dBodySetQuaternion(lv, o);
+    dBodySetQuaternion(b, o);
   }
-  dBodyEnable(lv);
-cout << "RV ball" << endl;
-  dBodyID rv = CreateComposite(world, space, "rvball", rvball, A_SIZE(rvball));
-  dBodySetPosition(rv, -12.0, -1.5, 1.2); // on the slope
+  dBodyEnable(b);
+}
+
+void create_RVBall()
+{
+  cout << "RV ball" << endl;
+  dBodyID b = CreateComposite(world, space, "rvball", rvball, A_SIZE(rvball));
+  dBodySetPosition(b, -12.0, -1.5, 1.2); // on the slope
   if(1){
     dQuaternion o, p, q;
     dQFromAxisAndAngle(q, 0, 0, 1, -M_PI / 2);
     dQSetIdentity(p);
     dQMultiply0(o, p, q);
-    dBodySetQuaternion(rv, o);
+    dBodySetQuaternion(b, o);
   }
-  dBodyEnable(rv);
+  dBodyEnable(b);
+}
 
-cout << "TmTetra" << endl;
+void create_IHBall()
+{
+  cout << "IH vall" << endl;
+  dBodyID b = CreateComposite(world, space, "ihball", ihball, A_SIZE(ihball));
+  dBodySetPosition(b, -12.0, -2.5, 1.2); // on the slope
+  dBodyEnable(b);
+}
+
+void create_IIBall()
+{
+  cout << "II vall" << endl;
+  dBodyID b = CreateComposite(world, space, "iiball", iiball, A_SIZE(iiball));
+  dBodySetPosition(b, -12.0, -3.5, 1.2); // on the slope
+  dBodyEnable(b);
+}
+
+void create_TmTetra()
+{
+  cout << "TmTetra" << endl;
   metatrimesh mttetra = {DENSITY, &tmvTetra, material[4]};
-  dBodyID t = CreateTrimeshFromVI(world, space, "tmtetra", &mttetra);
-  dBodySetPosition(t, 0.0, -1.5, 0.5);
-  dBodyEnable(t); // dBodyDisable(t);
-cout << "Tetra" << endl;
+  dBodyID b = CreateTrimeshFromVI(world, space, "tmtetra", &mttetra);
+  dBodySetPosition(b, 0.0, -1.5, 0.5);
+  dBodyEnable(b); // dBodyDisable(t);
+}
+
+void create_Tetra()
+{
+  cout << "Tetra" << endl;
   metaconvex mctetra = {DENSITY, &fvpTetra, material[5]};
   dBodyID b = CreateConvexFromFVP(world, space, "tetra", &mctetra);
   dBodySetPosition(b, 0.0, 1.5, 0.5);
   dBodyEnable(b);
-cout << "TmCube" << endl;
+}
+
+void create_TmCube()
+{
+  cout << "TmCube" << endl;
   metatrimesh mtcube = {DENSITY, &tmvCube, material[6]};
-  dBodyID e = CreateTrimeshFromVI(world, space, "tmcube", &mtcube);
-  dBodySetPosition(e, -1.5, -3.0, 0.5);
+  dBodyID b = CreateTrimeshFromVI(world, space, "tmcube", &mtcube);
+  dBodySetPosition(b, -1.5, -3.0, 0.5);
   if(1){
     dQuaternion q;
     dQFromAxisAndAngle(q, 1, 1, 1, M_PI / 4);
-    dBodySetQuaternion(e, q);
+    dBodySetQuaternion(b, q);
   }
-  dBodyEnable(e);
-cout << "Cube" << endl;
+  dBodyEnable(b);
+}
+
+void create_Cube()
+{
+  cout << "Cube" << endl;
   metaconvex mccube = {DENSITY, &fvpCube, material[7]};
-  dBodyID c = CreateConvexFromFVP(world, space, "cube", &mccube);
-  dBodySetPosition(c, -1.5, -1.5, 0.5);
+  dBodyID b = CreateConvexFromFVP(world, space, "cube", &mccube);
+  dBodySetPosition(b, -1.5, -1.5, 0.5);
   if(1){
     dQuaternion q;
     dQFromAxisAndAngle(q, 1, 1, 1, M_PI / 4);
-    dBodySetQuaternion(c, q);
+    dBodySetQuaternion(b, q);
   }
-  dBodyEnable(c);
-cout << "TmIcosahedron" << endl;
+  dBodyEnable(b);
+}
+
+void create_TmIcosahedron()
+{
+  cout << "TmIcosahedron" << endl;
   metatrimesh mticosahedron = {DENSITY, &tmvIcosahedron, material[8]};
-  dBodyID h = CreateTrimeshFromVI(world, space, "tmicosahedron", &mticosahedron);
-  dBodySetPosition(h, -1.5, 3.0, 0.5);
-  dBodyEnable(h);
-cout << "Icosahedron" << endl;
+  dBodyID b = CreateTrimeshFromVI(world, space, "tmicosahedron", &mticosahedron);
+  dBodySetPosition(b, -1.5, 3.0, 0.5);
+  dBodyEnable(b);
+}
+
+void create_Icosahedron()
+{
+  cout << "Icosahedron" << endl;
   metaconvex mcicosahedron = {DENSITY, &fvpIcosahedron, material[9]};
-  dBodyID i = CreateConvexFromFVP(world, space, "icosahedron", &mcicosahedron);
-  dBodySetPosition(i, -1.5, 1.5, 0.5);
-  dBodyEnable(i);
-cout << "TmBunny" << endl;
-  dBodyID m = CreateTrimeshFromVI(world, space, "tmbunny", &mtbunny);
-  dBodySetPosition(m, 0.0, 0.25, 0.88); // to (-0.109884, 0.304591, 1.217693)
+  dBodyID b = CreateConvexFromFVP(world, space, "icosahedron", &mcicosahedron);
+  dBodySetPosition(b, -1.5, 1.5, 0.5);
+  dBodyEnable(b);
+}
+
+void create_TmBunny()
+{
+  cout << "TmBunny" << endl;
+  dBodyID b = CreateTrimeshFromVI(world, space, "tmbunny", &mtbunny);
+  dBodySetPosition(b, 0.0, 0.25, 0.88); // to (-0.109884, 0.304591, 1.217693)
   dQuaternion q;
   dQSetIdentity(q);
   dMatrix3 rot;
@@ -296,7 +389,7 @@ cout << "TmBunny" << endl;
   dQFromAxisAndAngle(q, 1, 0, 0, M_PI / 2);
   dRfromQ(rot, q);
 #endif
-  dBodySetRotation(m, rot);
+  dBodySetRotation(b, rot);
 #else
 #if 0
   dQFromAxisAndAngle(q, 1, 0, 0, M_PI / 2);
@@ -304,64 +397,110 @@ cout << "TmBunny" << endl;
   dRFromEulerAngles(rot, -M_PI / 2, 0, 0); // phi=-x, theta=-y, psi=-z
   dQfromR(q, rot);
 #endif
-  dBodySetQuaternion(m, q);
+  dBodySetQuaternion(b, q);
 #endif
-  dBodyEnable(m); // dBodyDisable(m);
-cout << "Bunny" << endl;
-  dBodyID r = CreateConvexFromFVP(world, space, "bunny", &mcbunny);
-  dBodySetPosition(r, -3.0, -1.5, 2.0);
-  dBodyEnable(r);
-cout << "TmCustom" << endl;
+  dBodyEnable(b); // dBodyDisable(b);
+}
+
+void create_Bunny()
+{
+  cout << "Bunny" << endl;
+  dBodyID b = CreateConvexFromFVP(world, space, "bunny", &mcbunny);
+  dBodySetPosition(b, -3.0, -1.5, 2.0);
+  dBodyEnable(b);
+}
+
+void create_TmCustom()
+{
+  cout << "TmCustom" << endl;
   metatrimesh mtcustom = {DENSITY, &tmvCustom, material[12]};
-  dBodyID d = CreateTrimeshFromVI(world, space, "tmcustom", &mtcustom);
-  dBodySetPosition(d, -3.0, 3.0, 0.5);
-  dBodyEnable(d);
-cout << "Custom" << endl;
+  dBodyID b = CreateTrimeshFromVI(world, space, "tmcustom", &mtcustom);
+  dBodySetPosition(b, -3.0, 3.0, 0.5);
+  dBodyEnable(b);
+}
+
+void create_Custom()
+{
+  cout << "Custom" << endl;
   metaconvex mccustom = {DENSITY, &fvpCustom, material[13]};
-  dBodyID o = CreateConvexFromFVP(world, space, "custom", &mccustom);
-  dBodySetPosition(o, -3.0, 1.5, 0.5);
-  dBodyEnable(o);
-cout << "Plane" << endl;
-  if(0){
-    metaplane plane = {{0, 0, 1, 0}, {10.0, 10.0, 0.05}, DENSITY, material[29]};
-    dBodyID p = CreatePlane(world, space, "plane", &plane);
-    dBodySetPosition(p, 0.0, 0.0, 0.05);
+  dBodyID b = CreateConvexFromFVP(world, space, "custom", &mccustom);
+  dBodySetPosition(b, -3.0, 1.5, 0.5);
+  dBodyEnable(b);
+}
+
+void create_Plane()
+{
+  cout << "Plane" << endl;
+  metaplane plane = {{0, 0, 1, 0}, {10.0, 10.0, 0.05}, DENSITY, material[29]};
+  dBodyID b = CreatePlane(world, space, "plane", &plane);
+  dBodySetPosition(b, 0.0, 0.0, 0.05);
+  if(1){
     dMatrix3 rot;
     dRSetIdentity(rot);
     // dRFromAxisAndAngle(rot, 1, 0, 0, M_PI / 2);
-    dBodySetRotation(p, rot);
-    dBodyEnable(p);
+    dBodySetRotation(b, rot);
   }
-cout << "TmBunny2" << endl;
-  {
-    dBodyID m = CreateTrimeshFromVI(world, space, "tmbunny2", mtbunny2.get());
-    dBodySetPosition(m, -3.0, -3.5, 2.0);
+  dBodyEnable(b);
+}
+
+void create_TmBunny2()
+{
+  cout << "TmBunny2" << endl;
+  dBodyID b = CreateTrimeshFromVI(world, space, "tmbunny2", mtbunny2.get());
+  dBodySetPosition(b, -3.0, -3.5, 2.0);
+  if(1){
     dMatrix3 rot;
     dRFromAxisAndAngle(rot, 1, 0, 0, M_PI / 2);
-    dBodySetRotation(m, rot);
-    dBodyEnable(m);
+    dBodySetRotation(b, rot);
   }
-cout << "TmBunny3" << endl;
-  {
-    dBodyID m = CreateTrimeshFromVI(world, space, "tmbunny3", mtbunny3.get());
-    dBodySetPosition(m, -3.0, -4.0, 2.0);
+  dBodyEnable(b);
+}
+
+void create_TmBunny3()
+{
+  cout << "TmBunny3" << endl;
+  dBodyID b = CreateTrimeshFromVI(world, space, "tmbunny3", mtbunny3.get());
+  dBodySetPosition(b, -3.0, -4.0, 2.0);
+  if(1){
     dMatrix3 rot;
     dRFromAxisAndAngle(rot, 1, 0, 0, M_PI / 2);
-    dBodySetRotation(m, rot);
-    dBodyEnable(m);
+    dBodySetRotation(b, rot);
   }
-cout << "Bunny2" << endl;
-  {
-    dBodyID r = CreateConvexFromFVP(world, space, "bunny2", mcbunny2.get());
-    dBodySetPosition(r, -3.0, -2.5, 2.0);
-    dBodyEnable(r);
-  }
-cout << "Bunny3" << endl;
-  {
-    dBodyID r = CreateConvexFromFVP(world, space, "bunny3", mcbunny3.get());
-    dBodySetPosition(r, -3.0, -3.0, 2.0);
-    dBodyEnable(r);
-  }
+  dBodyEnable(b);
+}
+
+void create_Bunny2()
+{
+  cout << "Bunny2" << endl;
+  dBodyID b = CreateConvexFromFVP(world, space, "bunny2", mcbunny2.get());
+  dBodySetPosition(b, -3.0, -2.5, 2.0);
+  dBodyEnable(b);
+}
+
+void create_Bunny3()
+{
+  cout << "Bunny3" << endl;
+  dBodyID b = CreateConvexFromFVP(world, space, "bunny3", mcbunny3.get());
+  dBodySetPosition(b, -3.0, -3.0, 2.0);
+  dBodyEnable(b);
+}
+
+void CreateObjects(dWorldID world)
+{
+  create_TmBall();
+  create_Slope();
+  create_SphereApple(); create_SphereBall(); create_SphereRoll();
+  create_UBall(); create_LUBall(); create_RUBall();
+  create_VBall(); create_LVBall(); create_RVBall();
+  create_IHBall(); create_IIBall();
+  create_TmTetra(); create_Tetra();
+  create_TmCube(); create_Cube();
+  create_TmIcosahedron(); create_Icosahedron();
+  create_TmBunny(); create_Bunny();
+  create_TmCustom(); create_Custom();
+  if(0) create_Plane();
+  create_TmBunny2(); create_TmBunny3();
+  create_Bunny2(); create_Bunny3();
 }
 
 dReal getgBounce(dGeomID id)
