@@ -529,7 +529,15 @@ void simLoop(int pause)
       dVector3 pos = {0.5 - 6.0 + i, 0.5 + 1.0 + 0.6 * i, 0.5 + 2.0 - 0.4 * i};
       dMatrix3 rot;
       dRFromEulerAngles(rot, 0, -M_PI / 12, -M_PI / 4);
+#if 1
+      dReal s = -0.4, t = 0.3;
+      dReal v[] = {1 + s, 0 + t, 0, 1 + s, 1 + t, 0, 0 + s, 1 + t, 0};
+      dReal w[] = {0 + s, 1 + t, 0, 0 + s, 0 + t, 0, 1 + s, 0 + t, 0};
+      dsDrawTriangleD(pos, rot, &v[0], &v[3], &v[6], 1);
+      dsDrawTriangleD(pos, rot, &w[0], &w[3], &w[6], 1);
+#else
       dsDrawBoxD(pos, rot, lxyz);
+#endif
     }
   }
 }
