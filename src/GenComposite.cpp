@@ -56,7 +56,8 @@ dBodyID CreateComposite(dWorldID world, dSpaceID space,
     } break;
     case dConvexClass: {
       gsub = CreateGeomConvexFromFVP(0, (convexfvp *)mc[j].v);
-      dMassSetSphere(&subm, dm, 0.5); // ***
+      //dMassSetSphere(&subm, dm, 0.5); // ***
+      _MassSetConvexAsTrimesh(&subm, dm, gsub);
       dGeomSetPosition(gsub, -subm.c[0], -subm.c[1], -subm.c[2]); // ***
       dMassTranslate(&subm, -subm.c[0], -subm.c[1], -subm.c[2]); // ***
     } break;

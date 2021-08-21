@@ -5,9 +5,15 @@
 #ifndef __GEOMMANAGER_H__
 #define __GEOMMANAGER_H__
 
+extern void UnMapGeomTriMesh(dGeomID geom);
 extern dGeomID MapGeomTriMesh(dGeomID geom, trimeshvi *tmv);
+extern trimeshvi *FindTriMesh(dGeomID geom);
+extern void UnMapGeomConvex(dGeomID geom);
 extern dGeomID MapGeomConvex(dGeomID geom, convexfvp *fvp);
+extern convexfvp *FindConvex(dGeomID geom);
+extern void UnMapGeomMaterial(dGeomID geom);
 extern dGeomID MapGeomMaterial(dGeomID geom, cmaterial *cm);
+extern cmaterial *FindMaterial(dGeomID geom);
 extern dBodyID MapBody(const char *key, dBodyID body);
 extern dBodyID FindBody(const char *key);
 extern dBodyID OrderBody(dBodyID body, int pos);

@@ -331,8 +331,9 @@ dBodyID CreateConvexFromFVP(dWorldID world, dSpaceID space,
   dMass mass;
   dMassSetZero(&mass);
   //dMassSetSphereTotal(&mass, weight, radius); // (must convert to trimesh)
-  dMassSetSphere(&mass, mc->density, 0.5); // (must convert to trimesh)
+  //dMassSetSphere(&mass, mc->density, 0.5); // (must convert to trimesh)
   //dMassSetBox(&mass, mc->density, 0.25, 0.25, 0.25); // (must convert to trimesh)
+  _MassSetConvexAsTrimesh(&mass, mc->density, geom);
   dGeomSetPosition(geom, -mass.c[0], -mass.c[1], -mass.c[2]);
   dMassTranslate(&mass, -mass.c[0], -mass.c[1], -mass.c[2]);
   dBodyID b = dBodyCreate(world);
@@ -340,4 +341,15 @@ dBodyID CreateConvexFromFVP(dWorldID world, dSpaceID space,
   dGeomSetBody(geom, b);
   MapGeomMaterial(geom, mc->cm);
   return MapBody(key, OrderBody(b, 0));
+}
+
+void _MassSetConvexAsTrimesh(dMass *m, dReal density, dGeomID g)
+{
+  convexfvp *fvp = FindConvex(g);
+  trimeshvi *tmv = CvtTriMeshVIFromConvexFVP(fvp, 1.0);
+  dGeomID gt = CreateGeomTrimeshFromVI(0, tmv); // mapped
+  dMassSetTrimesh(m, density, gt);
+  UnMapGeomTriMesh(gt);
+  dGeomDestroy(gt);
+  FreeTriMeshVI(tmv);
 }

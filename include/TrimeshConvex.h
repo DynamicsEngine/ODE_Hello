@@ -76,4 +76,6 @@ extern dGeomID CreateGeomConvexFromFVP(dSpaceID space, convexfvp *fvp);
 extern dBodyID CreateConvexFromFVP(dWorldID world, dSpaceID space,
   const char *key, metaconvex *mc);
 
+extern void _MassSetConvexAsTrimesh(dMass *m, dReal density, dGeomID g);
+
 #endif // __TRIMESHCONVEX_H__

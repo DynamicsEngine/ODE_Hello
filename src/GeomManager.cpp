@@ -19,10 +19,25 @@ static unordered_map<dGeomID, cmaterial *> geom_material_manager;
 static unordered_map<string, dBodyID> geom_body_manager;
 static deque<dBodyID> geom_body_order;
 
+void UnMapGeomTriMesh(dGeomID geom)
+{
+  geom_trimesh_manager.erase(geom);
+}
+
 dGeomID MapGeomTriMesh(dGeomID geom, trimeshvi *tmv)
 {
   geom_trimesh_manager.insert(make_pair(geom, tmv));
   return geom;
+}
+
+trimeshvi *FindTriMesh(dGeomID geom)
+{
+  return geom_trimesh_manager[geom];
+}
+
+void UnMapGeomConvex(dGeomID geom)
+{
+  geom_convex_manager.erase(geom);
 }
 
 dGeomID MapGeomConvex(dGeomID geom, convexfvp *fvp)
@@ -31,10 +46,25 @@ dGeomID MapGeomConvex(dGeomID geom, convexfvp *fvp)
   return geom;
 }
 
+convexfvp *FindConvex(dGeomID geom)
+{
+  return geom_convex_manager[geom];
+}
+
+void UnMapGeomMaterial(dGeomID geom)
+{
+  geom_material_manager.erase(geom);
+}
+
 dGeomID MapGeomMaterial(dGeomID geom, cmaterial *cm)
 {
   geom_material_manager.insert(make_pair(geom, cm));
   return geom;
+}
+
+cmaterial *FindMaterial(dGeomID geom)
+{
+  return geom_material_manager[geom];
 }
 
 dBodyID MapBody(const char *key, dBodyID body)
@@ -91,7 +121,7 @@ void DrawGeom(dGeomID geom, const dReal *pos, const dReal *rot, int ws)
   if(!geom) return;
   if(!pos) pos = dGeomGetPosition(geom);
   if(!rot) rot = dGeomGetRotation(geom);
-  cmaterial *cm = geom_material_manager[geom];
+  cmaterial *cm = FindMaterial(geom);
   if(cm){
     dsSetTexture(cm->texID);
     const dReal *colour = cm->colour;
@@ -128,7 +158,7 @@ void DrawGeom(dGeomID geom, const dReal *pos, const dReal *rot, int ws)
   } break;
 #endif
   case dConvexClass: { // 6
-    convexfvp *fvp = geom_convex_manager[geom];
+    convexfvp *fvp = FindConvex(geom);
     if(!fvp) printf("not managed convex in DrawGeom (geomID: %p)\n", geom);
     else dsDrawConvexD(pos, rot,
       fvp->faces, fvp->faceCount, fvp->vtx, fvp->vtxCount, fvp->polygons);
@@ -158,7 +188,7 @@ void DrawGeom(dGeomID geom, const dReal *pos, const dReal *rot, int ws)
       else dsDrawTriangleD(pos, rot, v0, v1, v2, ws); // in the dTransformClass
     }
 #else
-    trimeshvi *tmv = geom_trimesh_manager[geom];
+    trimeshvi *tmv = FindTriMesh(geom);
     if(!tmv) printf("not managed trimesh in DrawGeom (geomID: %p)\n", geom);
     else{
       dReal *vtx = tmv->vtx;
