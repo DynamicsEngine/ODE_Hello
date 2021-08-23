@@ -247,9 +247,7 @@ dBodyID CreateTrimeshFromVI(dWorldID world, dSpaceID space,
   dGeomID geom = CreateGeomTrimeshFromVI(space, mt->tmv);
   dMass mass;
   dMassSetZero(&mass);
-  dMassSetTrimesh(&mass, mt->density, geom); // mass at .25 .25 .25
-  // dMassSetTrimeshTotal(&mass, weight, geom); // mass at .25 .25 .25
-//printf("mass at %f %f %f\n", mass.c[0], mass.c[1], mass.c[2]);
+  dMassSetTrimesh(&mass, mt->density, geom);
   dGeomSetPosition(geom, -mass.c[0], -mass.c[1], -mass.c[2]);
   dMassTranslate(&mass, -mass.c[0], -mass.c[1], -mass.c[2]);
   dBodyID b = dBodyCreate(world);
@@ -330,9 +328,6 @@ dBodyID CreateConvexFromFVP(dWorldID world, dSpaceID space,
   dGeomID geom = CreateGeomConvexFromFVP(space, mc->fvp);
   dMass mass;
   dMassSetZero(&mass);
-  //dMassSetSphereTotal(&mass, weight, radius); // (must convert to trimesh)
-  //dMassSetSphere(&mass, mc->density, 0.5); // (must convert to trimesh)
-  //dMassSetBox(&mass, mc->density, 0.25, 0.25, 0.25); // (must convert to trimesh)
   _MassSetConvexAsTrimesh(&mass, mc->density, geom);
   dGeomSetPosition(geom, -mass.c[0], -mass.c[1], -mass.c[2]);
   dMassTranslate(&mass, -mass.c[0], -mass.c[1], -mass.c[2]);

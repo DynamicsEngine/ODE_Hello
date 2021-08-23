@@ -19,9 +19,11 @@ static unordered_map<dGeomID, cmaterial *> geom_material_manager;
 static unordered_map<string, dBodyID> geom_body_manager;
 static deque<dBodyID> geom_body_order;
 
-void UnMapGeomTriMesh(dGeomID geom)
+trimeshvi *UnMapGeomTriMesh(dGeomID geom)
 {
+  trimeshvi *tmv = FindTriMesh(geom);
   geom_trimesh_manager.erase(geom);
+  return tmv;
 }
 
 dGeomID MapGeomTriMesh(dGeomID geom, trimeshvi *tmv)
@@ -35,9 +37,11 @@ trimeshvi *FindTriMesh(dGeomID geom)
   return geom_trimesh_manager[geom];
 }
 
-void UnMapGeomConvex(dGeomID geom)
+convexfvp *UnMapGeomConvex(dGeomID geom)
 {
+  convexfvp *fvp = FindConvex(geom);
   geom_convex_manager.erase(geom);
+  return fvp;
 }
 
 dGeomID MapGeomConvex(dGeomID geom, convexfvp *fvp)
@@ -51,9 +55,11 @@ convexfvp *FindConvex(dGeomID geom)
   return geom_convex_manager[geom];
 }
 
-void UnMapGeomMaterial(dGeomID geom)
+cmaterial *UnMapGeomMaterial(dGeomID geom)
 {
+  cmaterial *cm = FindMaterial(geom);
   geom_material_manager.erase(geom);
+  return cm;
 }
 
 dGeomID MapGeomMaterial(dGeomID geom, cmaterial *cm)
