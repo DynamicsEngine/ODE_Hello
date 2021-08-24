@@ -770,6 +770,7 @@ int main(int ac, char **av)
   setDrawStuff(&fn);
   dsSimulationLoop(ac, av, WIDTH, HEIGHT, &fn);
 
+  DestroyObjects();
   dSpaceDestroy(space);
   dWorldDestroy(world);
   dCloseODE();

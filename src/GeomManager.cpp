@@ -97,6 +97,8 @@ void DestroyObject(dBodyID body)
   while(geom){
     dGeomID nextgeom = dBodyGetNextGeom(geom);
     // dGeomTriMeshDataDestroy(tmd); // when geom has dTriMeshDataID tmd
+    // UnMapGeomTriMesh(geom); // needless (to be deleted in DestroyObjects())
+    // UnMapGeomConvex(geom); // needless (to be deleted in DestroyObjects())
     dGeomDestroy(geom);
     geom = nextgeom;
   }
